@@ -1,0 +1,28 @@
+<view class="page">
+  <view class="hero small-hero">
+    <view class="eyebrow">Top Scorers</view>
+    <view class="hero-title">射手榜</view>
+    <view class="hero-subtitle">进球、助攻与球队信息</view>
+  </view>
+
+  <view wx:if="{{error}}" class="card empty">{{error}}</view>
+  <view wx:elif="{{showEmpty}}" class="card empty">暂无射手榜数据，可能受免费 API 权限限制</view>
+
+  <view wx:else class="scorer-list card">
+    <view wx:for="{{scorers}}" wx:key="rank" class="scorer-row">
+      <view class="rank {{item.rankClass}}">{{item.rank}}</view>
+      <view class="player">
+        <view class="player-name">{{item.player.name}}</view>
+        <view class="player-team muted">{{item.teamText}}</view>
+      </view>
+      <view class="goal-box">
+        <view class="goal-value">{{item.goals}}</view>
+        <view class="goal-label">进球</view>
+      </view>
+      <view class="assist-box">
+        <view class="assist-value">{{item.assistsText}}</view>
+        <view class="goal-label">助攻</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,123 @@
+.progress-card {
+  padding: 26rpx;
+}
+
+.progress-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progress-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: #eaf5ee;
+  color: #0b7a3b;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.progress-bar {
+  height: 14rpx;
+  margin-top: 24rpx;
+  overflow: hidden;
+  border-radius: 999rpx;
+  background: #e6eee8;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #0b7a3b, #d7b15c);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12rpx;
+  margin-top: 24rpx;
+}
+
+.stat {
+  padding: 16rpx 8rpx;
+  border-radius: 12rpx;
+  background: #f6faf7;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 34rpx;
+  font-weight: 900;
+  color: #10391f;
+}
+
+.stat-value.live {
+  color: #bc2d2d;
+}
+
+.stat-label {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: #748078;
+}
+
+.match-card {
+  margin-bottom: 16rpx;
+  padding: 22rpx;
+}
+
+.match-card.compact {
+  padding: 18rpx 20rpx;
+}
+
+.match-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+  font-size: 24rpx;
+  color: #68756e;
+}
+
+.match-row {
+  display: grid;
+  grid-template-columns: 1fr 130rpx 1fr;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-width: 0;
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.team text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team.right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.date-group {
+  margin-bottom: 24rpx;
+}
+
+.date-title {
+  margin: 8rpx 0 14rpx;
+  font-size: 26rpx;
+  font-weight: 800;
+  color: #244931;
+}
+

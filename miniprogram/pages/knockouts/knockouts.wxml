@@ -1,0 +1,28 @@
+<view class="page">
+  <view class="hero small-hero">
+    <view class="eyebrow">Knockout</view>
+    <view class="hero-title">淘汰赛</view>
+    <view class="hero-subtitle">按阶段查看晋级之路</view>
+  </view>
+
+  <view wx:if="{{error}}" class="card empty">{{error}}</view>
+  <view wx:elif="{{showEmpty}}" class="card empty">淘汰赛赛程暂未生成</view>
+
+  <view wx:for="{{stages}}" wx:key="stage" class="stage">
+    <view class="stage-title">{{item.title}}</view>
+    <view wx:for="{{item.matches}}" wx:for-item="match" wx:key="apiMatchId" class="match-card card">
+      <view class="match-meta">
+        <text>{{match.beijingDate}} · {{match.beijingTimeText}}</text>
+        <text class="status-pill">{{match.displayStatus}}</text>
+      </view>
+      <view class="match-row">
+        <view class="team"><text>{{match.homeName}}</text></view>
+        <view class="score">{{match.scoreText}}</view>
+        <view class="team right"><text>{{match.awayName}}</text></view>
+      </view>
+      <view wx:if="{{match.showPenalty}}" class="penalty muted">
+        点球 {{match.score.penaltyHome}} : {{match.score.penaltyAway}}
+      </view>
+    </view>
+  </view>
+</view>

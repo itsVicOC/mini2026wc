@@ -1,0 +1,119 @@
+page {
+  min-height: 100%;
+  background: #f4f8f2;
+  color: #15251a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 28rpx 24rpx 48rpx;
+  box-sizing: border-box;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 34rpx 30rpx;
+  border-radius: 16rpx;
+  color: #fff;
+  background:
+    linear-gradient(135deg, rgba(7, 65, 34, 0.96), rgba(18, 126, 63, 0.94)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 2rpx, transparent 2rpx 92rpx);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -80rpx;
+  top: -54rpx;
+  width: 230rpx;
+  height: 230rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+}
+
+.eyebrow {
+  font-size: 24rpx;
+  opacity: 0.78;
+}
+
+.hero-title {
+  margin-top: 10rpx;
+  font-size: 44rpx;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.hero-subtitle {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  opacity: 0.86;
+}
+
+.section {
+  margin-top: 28rpx;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 800;
+}
+
+.section-meta {
+  font-size: 22rpx;
+  color: #6a756f;
+}
+
+.card {
+  border-radius: 14rpx;
+  background: #fff;
+  box-shadow: 0 8rpx 26rpx rgba(20, 55, 35, 0.08);
+  border: 1rpx solid rgba(17, 86, 45, 0.08);
+}
+
+.empty {
+  padding: 42rpx 24rpx;
+  text-align: center;
+  color: #78857e;
+  font-size: 26rpx;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40rpx;
+  padding: 0 14rpx;
+  border-radius: 999rpx;
+  background: #eaf5ee;
+  color: #0b7a3b;
+  font-size: 22rpx;
+  white-space: nowrap;
+}
+
+.team-crest {
+  width: 42rpx;
+  height: 42rpx;
+  border-radius: 50%;
+  background: #edf2ef;
+}
+
+.muted {
+  color: #78857e;
+}
+
+.score {
+  min-width: 112rpx;
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 900;
+  color: #102718;
+}
+

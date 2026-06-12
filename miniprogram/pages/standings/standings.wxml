@@ -1,0 +1,48 @@
+<view class="page">
+  <view class="hero small-hero">
+    <view class="eyebrow">Standings</view>
+    <view class="hero-title">小组积分</view>
+    <view class="hero-subtitle">12 个小组排名与出线形势</view>
+  </view>
+
+  <scroll-view class="group-scroll" scroll-x>
+    <view class="groups">
+      <view
+        wx:for="{{groups}}"
+        wx:key="value"
+        class="{{item.className}}"
+        data-value="{{item.value}}"
+        bindtap="onGroupTap"
+      >{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{error}}" class="card empty">{{error}}</view>
+  <view wx:elif="{{showEmpty}}" class="card empty">暂无积分榜数据</view>
+
+  <view wx:else class="table card">
+    <view class="table-row table-head">
+      <view>排名</view>
+      <view>球队</view>
+      <view>赛</view>
+      <view>胜</view>
+      <view>平</view>
+      <view>负</view>
+      <view>净</view>
+      <view>分</view>
+    </view>
+    <view wx:for="{{standings}}" wx:key="key" class="table-row">
+      <view class="rank {{item.rankClass}}">{{item.position}}</view>
+      <view class="team-cell">
+        <image wx:if="{{item.team.crest}}" class="team-crest" src="{{item.team.crest}}" mode="aspectFit"></image>
+        <text>{{item.team.name}}</text>
+      </view>
+      <view>{{item.playedGames}}</view>
+      <view>{{item.won}}</view>
+      <view>{{item.draw}}</view>
+      <view>{{item.lost}}</view>
+      <view>{{item.goalDifference}}</view>
+      <view class="points">{{item.points}}</view>
+    </view>
+  </view>
+</view>

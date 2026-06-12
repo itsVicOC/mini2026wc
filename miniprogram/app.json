@@ -1,0 +1,46 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/matches/matches",
+    "pages/standings/standings",
+    "pages/knockouts/knockouts",
+    "pages/scorers/scorers"
+  ],
+  "window": {
+    "navigationBarTitleText": "苏式生活馆",
+    "navigationBarBackgroundColor": "#0B4D2B",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F4F8F2"
+  },
+  "tabBar": {
+    "color": "#617064",
+    "selectedColor": "#0B7A3B",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/matches/matches",
+        "text": "赛程"
+      },
+      {
+        "pagePath": "pages/standings/standings",
+        "text": "积分"
+      },
+      {
+        "pagePath": "pages/knockouts/knockouts",
+        "text": "淘汰赛"
+      },
+      {
+        "pagePath": "pages/scorers/scorers",
+        "text": "射手榜"
+      }
+    ]
+  },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}
+

@@ -1,0 +1,93 @@
+<view class="page">
+  <view class="hero">
+    <view class="eyebrow">2026 FIFA World Cup</view>
+    <view class="hero-title">世界杯赛事伴侣</view>
+    <view class="hero-subtitle">北京时间赛程 · 比分 · 积分 · 射手榜</view>
+  </view>
+
+  <view class="section progress-card card">
+    <view class="progress-top">
+      <view>
+        <view class="section-title">赛事进度</view>
+        <view class="section-meta">{{lastSyncText}}</view>
+      </view>
+      <view class="progress-ring">{{progress.progressPercent}}%</view>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-bar-fill" style="width: {{progress.progressPercent}}%;"></view>
+    </view>
+    <view class="stats">
+      <view class="stat">
+        <view class="stat-value">{{progress.total}}</view>
+        <view class="stat-label">总场次</view>
+      </view>
+      <view class="stat">
+        <view class="stat-value">{{progress.finished}}</view>
+        <view class="stat-label">已完赛</view>
+      </view>
+      <view class="stat">
+        <view class="stat-value">{{progress.pending}}</view>
+        <view class="stat-label">未进行</view>
+      </view>
+      <view class="stat">
+        <view class="stat-value live">{{progress.live}}</view>
+        <view class="stat-label">进行中</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{error}}" class="section card empty">{{error}}</view>
+
+  <view class="section">
+    <view class="section-head">
+      <view class="section-title">今日赛程</view>
+      <view class="section-meta">北京时间</view>
+    </view>
+    <view wx:if="{{!todayMatches.length}}" class="card empty">今天暂无比赛</view>
+    <view wx:for="{{todayMatches}}" wx:key="apiMatchId" class="match-card card">
+      <view class="match-meta">
+        <text>{{item.beijingTimeText}}</text>
+        <text class="status-pill">{{item.displayStatus}}</text>
+      </view>
+      <view class="match-row">
+        <view class="team">
+          <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit"></image>
+          <text>{{item.homeName}}</text>
+        </view>
+        <view class="score">{{item.scoreText}}</view>
+        <view class="team right">
+          <text>{{item.awayName}}</text>
+          <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view class="section-title">未来一周</view>
+      <view class="section-meta">按日期分组</view>
+    </view>
+    <view wx:if="{{!weekMatches.length}}" class="card empty">未来一周暂无赛程</view>
+    <view wx:for="{{weekMatches}}" wx:key="date" class="date-group">
+      <view class="date-title">{{item.date}}</view>
+      <view wx:for="{{item.matches}}" wx:for-item="match" wx:key="apiMatchId" class="match-card card compact">
+        <view class="match-meta">
+          <text>{{match.beijingTimeText}}</text>
+          <text class="status-pill">{{match.displayStatus}}</text>
+        </view>
+        <view class="match-row">
+          <view class="team">
+            <image wx:if="{{match.homeTeam.crest}}" class="team-crest" src="{{match.homeTeam.crest}}" mode="aspectFit"></image>
+            <text>{{match.homeName}}</text>
+          </view>
+          <view class="score">{{match.scoreText}}</view>
+          <view class="team right">
+            <text>{{match.awayName}}</text>
+            <image wx:if="{{match.awayTeam.crest}}" class="team-crest" src="{{match.awayTeam.crest}}" mode="aspectFit"></image>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

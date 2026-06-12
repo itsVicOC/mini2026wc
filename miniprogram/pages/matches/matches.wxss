@@ -1,0 +1,75 @@
+.small-hero .hero-title {
+  font-size: 40rpx;
+}
+
+.filter-scroll {
+  margin: 24rpx 0 18rpx;
+  white-space: nowrap;
+}
+
+.filters {
+  display: flex;
+  gap: 12rpx;
+}
+
+.filter {
+  flex: 0 0 auto;
+  padding: 14rpx 24rpx;
+  border-radius: 999rpx;
+  background: #fff;
+  color: #4d5b52;
+  font-size: 25rpx;
+  border: 1rpx solid rgba(17, 86, 45, 0.1);
+}
+
+.filter.active {
+  background: #0b7a3b;
+  color: #fff;
+}
+
+.match-card {
+  margin-bottom: 16rpx;
+  padding: 22rpx;
+}
+
+.match-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+  font-size: 24rpx;
+  color: #68756e;
+}
+
+.match-row {
+  display: grid;
+  grid-template-columns: 1fr 130rpx 1fr;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-width: 0;
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.team text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team.right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.match-foot {
+  margin-top: 16rpx;
+  font-size: 23rpx;
+}
+

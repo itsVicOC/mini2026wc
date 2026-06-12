@@ -1,0 +1,41 @@
+<view class="page">
+  <view class="hero small-hero">
+    <view class="eyebrow">Schedule</view>
+    <view class="hero-title">完整赛程</view>
+    <view class="hero-subtitle">按北京时间展示全部比赛</view>
+  </view>
+
+  <scroll-view class="filter-scroll" scroll-x>
+    <view class="filters">
+      <view
+        wx:for="{{statuses}}"
+        wx:key="value"
+        class="{{item.className}}"
+        data-value="{{item.value}}"
+        bindtap="onStatusTap"
+      >{{item.label}}</view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{error}}" class="card empty">{{error}}</view>
+  <view wx:elif="{{showEmpty}}" class="card empty">暂无赛程数据</view>
+
+  <view wx:for="{{matches}}" wx:key="apiMatchId" class="match-card card">
+    <view class="match-meta">
+      <text>{{item.beijingDate}} · {{item.beijingTimeText}}</text>
+      <text class="status-pill">{{item.displayStatus}}</text>
+    </view>
+    <view class="match-row">
+      <view class="team">
+        <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit"></image>
+        <text>{{item.homeName}}</text>
+      </view>
+      <view class="score">{{item.scoreText}}</view>
+      <view class="team right">
+        <text>{{item.awayName}}</text>
+        <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit"></image>
+      </view>
+    </view>
+    <view class="match-foot muted">{{item.stageText}} {{item.groupText}}</view>
+  </view>
+</view>

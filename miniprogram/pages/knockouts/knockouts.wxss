@@ -1,0 +1,75 @@
+.small-hero .hero-title {
+  font-size: 40rpx;
+}
+
+.stage {
+  margin-top: 26rpx;
+}
+
+.stage-title {
+  margin-bottom: 14rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #173d24;
+}
+
+.match-card {
+  position: relative;
+  margin-bottom: 16rpx;
+  padding: 22rpx;
+}
+
+.match-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22rpx;
+  bottom: 22rpx;
+  width: 8rpx;
+  border-radius: 0 999rpx 999rpx 0;
+  background: #d7b15c;
+}
+
+.match-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+  padding-left: 8rpx;
+  font-size: 24rpx;
+  color: #68756e;
+}
+
+.match-row {
+  display: grid;
+  grid-template-columns: 1fr 130rpx 1fr;
+  align-items: center;
+  gap: 12rpx;
+  padding-left: 8rpx;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.team text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team.right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.penalty {
+  margin-top: 14rpx;
+  padding-left: 8rpx;
+  font-size: 23rpx;
+}
+
