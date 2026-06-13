@@ -17,6 +17,19 @@ Page({
     this.loadData().finally(() => wx.stopPullDownRefresh());
   },
 
+  onShareAppMessage() {
+    return {
+      title: '2026 世界杯射手榜',
+      path: '/pages/scorers/scorers'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '2026 世界杯射手榜'
+    };
+  },
+
   async loadData() {
     this.setData({ loading: true, error: '' });
     try {

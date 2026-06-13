@@ -17,6 +17,19 @@ Page({
     this.loadData().finally(() => wx.stopPullDownRefresh());
   },
 
+  onShareAppMessage() {
+    return {
+      title: '2026 世界杯淘汰赛',
+      path: '/pages/knockouts/knockouts'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '2026 世界杯淘汰赛'
+    };
+  },
+
   async loadData() {
     this.setData({ loading: true, error: '' });
     try {

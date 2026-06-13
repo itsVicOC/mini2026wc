@@ -25,6 +25,19 @@ Page({
     this.loadData().finally(() => wx.stopPullDownRefresh());
   },
 
+  onShareAppMessage() {
+    return {
+      title: '2026 世界杯赛程',
+      path: '/pages/matches/matches'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '2026 世界杯赛程'
+    };
+  },
+
   onStatusTap(event) {
     this.applyStatus(event.currentTarget.dataset.value || '');
   },

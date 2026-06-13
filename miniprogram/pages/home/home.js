@@ -26,6 +26,19 @@ Page({
     this.loadData({ refresh: true }).finally(() => wx.stopPullDownRefresh());
   },
 
+  onShareAppMessage() {
+    return {
+      title: '苏式生活馆｜2026 世界杯赛事伴侣',
+      path: '/pages/home/home'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '苏式生活馆｜2026 世界杯赛事伴侣'
+    };
+  },
+
   onRefreshTap() {
     if (this.data.refreshing) {
       return;

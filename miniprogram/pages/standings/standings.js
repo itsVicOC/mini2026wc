@@ -20,6 +20,19 @@ Page({
     this.loadData().finally(() => wx.stopPullDownRefresh());
   },
 
+  onShareAppMessage() {
+    return {
+      title: '2026 世界杯小组积分',
+      path: '/pages/standings/standings'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '2026 世界杯小组积分'
+    };
+  },
+
   onGroupTap(event) {
     this.applyGroup(event.currentTarget.dataset.value);
   },
