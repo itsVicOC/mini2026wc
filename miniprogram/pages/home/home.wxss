@@ -11,26 +11,17 @@
 .progress-title-row {
   display: flex;
   align-items: center;
-  gap: 4rpx;
+  gap: 2rpx;
 }
 
 .refresh-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36rpx;
-  height: 36rpx;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
+  width: 32rpx;
+  height: 32rpx;
   color: #0b7a3b;
   line-height: 1;
-}
-
-.refresh-button::after {
-  border: 0;
 }
 
 .refresh-icon {

@@ -10,9 +10,9 @@
       <view>
         <view class="progress-title-row">
           <view class="section-title">赛事进度</view>
-          <button class="refresh-button {{refreshing ? 'spinning' : ''}}" bindtap="onRefreshTap" disabled="{{refreshing}}" aria-label="刷新数据">
+          <view class="refresh-button {{refreshing ? 'spinning' : ''}}" bindtap="onRefreshTap" aria-label="刷新数据">
             <text class="refresh-icon">↻</text>
-          </button>
+          </view>
         </view>
         <view class="section-meta">{{lastSyncText}}</view>
       </view>
