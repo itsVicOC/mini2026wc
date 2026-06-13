@@ -8,7 +8,12 @@
   <view class="section progress-card card">
     <view class="progress-top">
       <view>
-        <view class="section-title">赛事进度</view>
+        <view class="progress-title-row">
+          <view class="section-title">赛事进度</view>
+          <button class="refresh-button {{refreshing ? 'spinning' : ''}}" bindtap="onRefreshTap" disabled="{{refreshing}}" aria-label="刷新数据">
+            <text class="refresh-icon">↻</text>
+          </button>
+        </view>
         <view class="section-meta">{{lastSyncText}}</view>
       </view>
       <view class="progress-ring">{{progress.progressPercent}}%</view>

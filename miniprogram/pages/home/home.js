@@ -14,7 +14,8 @@ Page({
     },
     todayMatches: [],
     weekMatches: [],
-    lastSyncText: ''
+    lastSyncText: '',
+    refreshing: false
   },
 
   onLoad() {
@@ -22,13 +23,24 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.loadData().finally(() => wx.stopPullDownRefresh());
+    this.loadData({ refresh: true }).finally(() => wx.stopPullDownRefresh());
   },
 
-  async loadData() {
-    this.setData({ loading: true, error: '' });
+  onRefreshTap() {
+    if (this.data.refreshing) {
+      return;
+    }
+    this.loadData({ refresh: true, manual: true });
+  },
+
+  async loadData(options = {}) {
+    this.setData({
+      loading: !options.manual,
+      refreshing: Boolean(options.manual),
+      error: ''
+    });
     try {
-      const data = await api.getHome();
+      const data = await api.getHome({ refresh: options.refresh });
       this.setData({
         progress: data.progress || this.data.progress,
         todayMatches: this.decorateMatches(data.todayMatches || []),
@@ -37,11 +49,13 @@ Page({
           matches: this.decorateMatches(group.matches || [])
         })),
         lastSyncText: this.lastSyncText(data.lastSync || []),
-        loading: false
+        loading: false,
+        refreshing: false
       });
     } catch (error) {
       this.setData({
         loading: false,
+        refreshing: false,
         error: error.message || '数据加载失败'
       });
     }
@@ -62,7 +76,26 @@ Page({
       .filter(Boolean)
       .sort()
       .pop();
-    return latest ? `最近更新 ${latest}` : '等待首次同步';
+    return latest ? `最近更新 ${formatBeijingDateTime(latest)}` : '等待首次同步';
   }
 });
 
+function formatBeijingDateTime(value) {
+  const date = parseDate(value);
+  if (!date) {
+    return value;
+  }
+  const beijingDate = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  const pad = (number) => String(number).padStart(2, '0');
+  return `${beijingDate.getUTCFullYear()}-${pad(beijingDate.getUTCMonth() + 1)}-${pad(beijingDate.getUTCDate())} ${pad(beijingDate.getUTCHours())}:${pad(beijingDate.getUTCMinutes())}`;
+}
+
+function parseDate(value) {
+  if (!value) {
+    return null;
+  }
+  const text = String(value).trim();
+  const normalized = text.includes('T') ? text : text.replace(' ', 'T');
+  const date = new Date(`${normalized}${/[zZ]|[+-]\d{2}:?\d{2}$/.test(normalized) ? '' : 'Z'}`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}

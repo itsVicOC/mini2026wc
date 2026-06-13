@@ -50,11 +50,26 @@
 }
 
 .player-team {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   margin-top: 4rpx;
+  overflow: hidden;
+  font-size: 23rpx;
+}
+
+.player-team text {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 23rpx;
+}
+
+.team-flag {
+  flex: 0 0 auto;
+  width: 30rpx;
+  height: 22rpx;
+  border-radius: 4rpx;
 }
 
 .goal-box,
@@ -79,4 +94,3 @@
   color: #77837c;
   font-size: 20rpx;
 }
-

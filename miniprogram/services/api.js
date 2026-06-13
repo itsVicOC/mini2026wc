@@ -1,7 +1,9 @@
 const { request } = require('./request');
 
-function getHome() {
-  return request('/api/home');
+function getHome(options = {}) {
+  return request('/api/home', {
+    data: options.refresh ? { refresh: Date.now() } : {}
+  });
 }
 
 function getMatches(params = {}) {
@@ -33,4 +35,3 @@ module.exports = {
   getKnockouts,
   getScorers
 };
-

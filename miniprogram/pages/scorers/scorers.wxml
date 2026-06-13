@@ -13,7 +13,10 @@
       <view class="rank {{item.rankClass}}">{{item.rank}}</view>
       <view class="player">
         <view class="player-name">{{item.player.name}}</view>
-        <view class="player-team muted">{{item.teamText}}</view>
+        <view class="player-team muted">
+          <image wx:if="{{item.team.crest}}" class="team-flag" src="{{item.team.crest}}" mode="aspectFit"></image>
+          <text>{{item.teamText}}</text>
+        </view>
       </view>
       <view class="goal-box">
         <view class="goal-value">{{item.goals}}</view>

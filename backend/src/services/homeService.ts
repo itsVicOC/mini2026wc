@@ -4,9 +4,9 @@ import { getLatestSuccessfulSync } from '../repositories/syncLogRepository.js';
 import { addDays, todayInBeijing } from '../utils/time.js';
 import { getCache, setCache } from '../utils/cache.js';
 
-export async function getHomeData() {
+export async function getHomeData(options: { bypassCache?: boolean } = {}) {
   const cacheKey = 'home';
-  const cached = getCache<HomeData>(cacheKey);
+  const cached = options.bypassCache ? null : getCache<HomeData>(cacheKey);
   if (cached) {
     return cached;
   }

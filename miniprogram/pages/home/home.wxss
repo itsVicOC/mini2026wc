@@ -8,6 +8,51 @@
   justify-content: space-between;
 }
 
+.progress-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.refresh-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48rpx;
+  height: 48rpx;
+  margin: 0;
+  padding: 0;
+  border: 1rpx solid rgba(11, 122, 59, 0.18);
+  border-radius: 50%;
+  background: #f3faf5;
+  color: #0b7a3b;
+  line-height: 1;
+}
+
+.refresh-button::after {
+  border: 0;
+}
+
+.refresh-icon {
+  font-size: 30rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.refresh-button.spinning .refresh-icon {
+  animation: refresh-spin 0.8s linear infinite;
+}
+
+@keyframes refresh-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .progress-ring {
   display: flex;
   align-items: center;
@@ -120,4 +165,3 @@
   font-weight: 800;
   color: #244931;
 }
-
