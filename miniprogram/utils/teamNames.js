@@ -19,7 +19,7 @@ const TEAM_NAMES = [
   ['Burkina Faso', '布基纳法索', 'BFA'],
   ['Cameroon', '喀麦隆', 'CMR'],
   ['Canada', '加拿大', 'CAN'],
-  ['Cape Verde', '佛得角', 'Cabo Verde', 'CPV'],
+  ['Cape Verde', '佛得角', 'Cabo Verde', 'Cape Verde Islands', 'Cabo Verde Islands', 'Republic of Cabo Verde', 'CPV'],
   ['Chile', '智利', 'CHI', 'CHL'],
   ['China PR', '中国', 'China', 'CHN'],
   ['Chinese Taipei', '中国台北', 'Taiwan', 'TPE'],
