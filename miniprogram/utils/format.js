@@ -1,3 +1,5 @@
+const { getChineseTeamName } = require('./teamNames');
+
 function scoreText(match) {
   if (!match || !match.score || match.score.home === null || match.score.away === null) {
     return '-';
@@ -6,7 +8,7 @@ function scoreText(match) {
 }
 
 function teamName(team) {
-  return (team && team.name) || '待定';
+  return getChineseTeamName(team) || (team && (team.name || team.shortName || team.tla)) || '待定';
 }
 
 function groupLabel(group) {

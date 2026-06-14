@@ -1,5 +1,5 @@
 const api = require('../../services/api');
-const { groupLabel } = require('../../utils/format');
+const { groupLabel, teamName } = require('../../utils/format');
 
 Page({
   data: {
@@ -72,6 +72,7 @@ Page({
       standings: standings.map((row) => ({
         ...row,
         key: `${row.group}-${row.team.apiTeamId || row.team.name}`,
+        teamText: teamName(row.team),
         groupText: groupLabel(row.group),
         rankClass: row.position <= 2 ? 'qualified' : ''
       })),
