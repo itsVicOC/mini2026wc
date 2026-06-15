@@ -254,7 +254,7 @@ function formatMatch(match: DbMatch) {
     group: match.group_name,
     utcDate: match.utc_date,
     beijingDate: match.beijing_date,
-    beijingTimeText: toBeijingTimeText(`${match.utc_date.replace(' ', 'T')}Z`),
+    beijingTimeText: toBeijingTimeText(match.utc_date),
     status: match.status,
     displayStatus: match.display_status,
     homeTeam: {

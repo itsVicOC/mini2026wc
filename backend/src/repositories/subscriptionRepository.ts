@@ -2,7 +2,8 @@ import { pool } from '../db/pool.js';
 import { appConfig } from '../config/app.js';
 import { env } from '../config/env.js';
 import { badRequest } from '../utils/errors.js';
-import { toBeijingDateTimeText, toMysqlDateTime } from '../utils/time.js';
+import { toDisplayStatus } from '../utils/status.js';
+import { parseUtcDateTime, toBeijingDateTimeText, toMysqlDateTime } from '../utils/time.js';
 
 const NOTIFY_BEFORE_MINUTES = 5;
 
@@ -10,37 +11,47 @@ export async function upsertMatchSubscription(params: {
   openid: string;
   apiMatchId: number;
   templateId: string;
+  expectedUtcDate?: string;
+  expectedMatchName?: string;
 }) {
-  const match = await getSubscribableMatch(params.apiMatchId);
-  if (!match) {
-    throw badRequest('比赛不存在，或当前状态不支持订阅');
+  const matchCheck = await getSubscribableMatch(params.apiMatchId, {
+    expectedUtcDate: params.expectedUtcDate,
+    expectedMatchName: params.expectedMatchName
+  });
+  if (!matchCheck.ok) {
+    throw badRequest(matchCheck.message);
   }
 
-  const matchTime = new Date(`${match.utc_date.replace(' ', 'T')}Z`);
+  const match = matchCheck.match;
+  const matchTime = parseUtcDateTime(match.utc_date);
   const sendAt = toMysqlDateTime(new Date(matchTime.getTime() - NOTIFY_BEFORE_MINUTES * 60 * 1000));
   if (!sendAt) {
     throw badRequest('比赛开赛时间异常，无法订阅');
   }
 
-  await pool.execute(
-    `
-      INSERT INTO match_subscriptions (
-        openid, api_match_id, template_id, send_at, \`status\`, error_message, wx_msg_id
-      )
-      VALUES (:openid, :apiMatchId, :templateId, :sendAt, 'pending', NULL, NULL)
-      ON DUPLICATE KEY UPDATE
-        send_at = IF(\`status\` = 'sent', send_at, VALUES(send_at)),
-        \`status\` = IF(\`status\` = 'sent', \`status\`, 'pending'),
-        error_message = IF(\`status\` = 'sent', error_message, NULL),
-        wx_msg_id = IF(\`status\` = 'sent', wx_msg_id, NULL)
-    `,
-    {
-      openid: params.openid,
-      apiMatchId: params.apiMatchId,
-      templateId: params.templateId,
-      sendAt
-    }
-  );
+  try {
+    await pool.execute(
+      `
+        INSERT INTO match_subscriptions (
+          openid, api_match_id, template_id, send_at, \`status\`, error_message, wx_msg_id
+        )
+        VALUES (:openid, :apiMatchId, :templateId, :sendAt, 'pending', NULL, NULL)
+        ON DUPLICATE KEY UPDATE
+          send_at = IF(\`status\` = 'sent', send_at, VALUES(send_at)),
+          \`status\` = IF(\`status\` = 'sent', \`status\`, 'pending'),
+          error_message = IF(\`status\` = 'sent', error_message, NULL),
+          wx_msg_id = IF(\`status\` = 'sent', wx_msg_id, NULL)
+      `,
+      {
+        openid: params.openid,
+        apiMatchId: params.apiMatchId,
+        templateId: params.templateId,
+        sendAt
+      }
+    );
+  } catch (error) {
+    throw badRequest(`订阅保存失败：${formatDatabaseError(error)}`);
+  }
 
   return {
     apiMatchId: params.apiMatchId,
@@ -83,13 +94,10 @@ export async function getDueSubscriptions(limit = 100) {
   const [rows] = await pool.execute(
     `
       SELECT
-        s.id,
+        s.id AS subscription_id,
         s.openid,
         s.api_match_id,
-        m.utc_date,
-        m.home_team_name,
-        m.away_team_name,
-        m.\`status\`
+        m.*
       FROM match_subscriptions s
       INNER JOIN matches m ON m.api_match_id = s.api_match_id
       WHERE s.\`status\` = 'pending'
@@ -108,12 +116,12 @@ export async function getDueSubscriptions(limit = 100) {
   );
 
   return (rows as DbDueSubscription[]).map((row) => ({
-    id: row.id,
+    id: row.subscription_id,
     openid: row.openid,
     apiMatchId: row.api_match_id,
     matchStatus: row.status,
     matchName: `${row.home_team_name || '待定'} vs ${row.away_team_name || '待定'}`,
-    beijingTimeText: toBeijingDateTimeText(`${row.utc_date.replace(' ', 'T')}Z`)
+    beijingTimeText: toBeijingDateTimeText(row.utc_date)
   }));
 }
 
@@ -139,40 +147,115 @@ export async function markSubscriptionFailed(id: number, errorMessage: string) {
   );
 }
 
-async function getSubscribableMatch(apiMatchId: number) {
-  const [rows] = await pool.execute(
-    `
-      SELECT api_match_id, utc_date, \`status\`
-      FROM matches
-      WHERE api_match_id = :apiMatchId
-        AND competition_code = :competitionCode
-        AND season = :season
-      LIMIT 1
-    `,
-    {
-      apiMatchId,
-      competitionCode: appConfig.competitionCode,
-      season: appConfig.season
-    }
-  );
+async function getSubscribableMatch(
+  apiMatchId: number,
+  expected?: {
+    expectedUtcDate?: string;
+    expectedMatchName?: string;
+  }
+) {
+  let rows: unknown;
+  try {
+    const [queryRows] = await pool.execute(
+      `
+        SELECT *
+        FROM matches
+        WHERE api_match_id = :apiMatchId
+          AND competition_code = :competitionCode
+          AND season = :season
+        LIMIT 1
+      `,
+      {
+        apiMatchId,
+        competitionCode: appConfig.competitionCode,
+        season: appConfig.season
+      }
+    );
+    rows = queryRows;
+  } catch (error) {
+    throw badRequest(`订阅比赛查询失败：${formatDatabaseError(error)}`);
+  }
 
-  const match = (rows as Array<{ api_match_id: number; utc_date: string; status: string }>)[0];
-  if (!match || !isSubscribableStatus(match.status)) {
-    return null;
+  const match = (
+    rows as Array<{
+      api_match_id: number;
+      utc_date: string;
+      status: string;
+      home_team_name: string | null;
+      away_team_name: string | null;
+    }>
+  )[0];
+  if (!match) {
+    return {
+      ok: false as const,
+      message: `比赛不存在，请刷新赛程后重试（比赛ID ${apiMatchId}）`
+    };
   }
-  const matchTime = new Date(`${match.utc_date.replace(' ', 'T')}Z`).getTime();
-  if (!Number.isFinite(matchTime) || matchTime <= Date.now() + NOTIFY_BEFORE_MINUTES * 60 * 1000) {
-    return null;
+  const dbMatchName = `${match.home_team_name || '待定'} vs ${match.away_team_name || '待定'}`;
+  if (expected?.expectedUtcDate && normalizeUtcDateText(expected.expectedUtcDate) !== normalizeUtcDateText(match.utc_date)) {
+    return {
+      ok: false as const,
+      message: `订阅比赛数据不一致，请刷新后重试（比赛ID ${apiMatchId}，页面 ${expected.expectedMatchName || '未知比赛'} ${expected.expectedUtcDate}，数据库 ${dbMatchName} ${match.utc_date}）`
+    };
   }
-  return match;
+  if (!isSubscribableStatus(match.status)) {
+    return {
+      ok: false as const,
+      message: `比赛状态已更新为${toDisplayStatus(match.status)}，不支持订阅（比赛ID ${apiMatchId}，${dbMatchName}）`
+    };
+  }
+  const matchTime = parseUtcDateTime(match.utc_date);
+  if (Number.isNaN(matchTime.getTime())) {
+    return {
+      ok: false as const,
+      message: '比赛开赛时间异常，无法订阅'
+    };
+  }
+  const now = new Date();
+  if (matchTime.getTime() <= now.getTime() + NOTIFY_BEFORE_MINUTES * 60 * 1000) {
+    return {
+      ok: false as const,
+      message: `距离开赛不足 ${NOTIFY_BEFORE_MINUTES} 分钟，无法订阅（比赛ID ${apiMatchId}，${dbMatchName}，原始时间 ${match.utc_date}，服务器时间 ${toBeijingDateTimeText(now)}，比赛时间 ${toBeijingDateTimeText(matchTime)}）`
+    };
+  }
+  return {
+    ok: true as const,
+    match
+  };
 }
 
 export function isSubscribableStatus(status: string) {
   return ['SCHEDULED', 'TIMED'].includes(status);
 }
 
+function normalizeUtcDateText(value: string) {
+  const date = parseUtcDateTime(value);
+  return Number.isNaN(date.getTime()) ? String(value).trim() : date.toISOString().slice(0, 19);
+}
+
+function formatDatabaseError(error: unknown) {
+  if (typeof error !== 'object' || error === null) {
+    return '数据库写入异常';
+  }
+
+  const detail = error as { code?: string; sqlMessage?: string; message?: string };
+  if (detail.code === 'ER_NO_SUCH_TABLE') {
+    return '订阅表不存在，请先执行 backend/database/fixes/add_match_subscriptions.sql';
+  }
+  if (detail.code === 'ER_BAD_FIELD_ERROR') {
+    return `订阅表字段不完整，请重新执行订阅表迁移：${detail.sqlMessage || detail.message || detail.code}`;
+  }
+  if (detail.code === 'ER_NO_REFERENCED_ROW_2') {
+    return '比赛数据不存在或外键校验失败，请先同步比赛数据后重试';
+  }
+  if (detail.code) {
+    return `${detail.code}${detail.sqlMessage ? `：${detail.sqlMessage}` : ''}`;
+  }
+  return detail.message || '数据库写入异常';
+}
+
 type DbDueSubscription = {
-  id: number;
+  subscription_id: number;
   openid: string;
   api_match_id: number;
   utc_date: string;

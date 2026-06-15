@@ -13,6 +13,7 @@ import { adminRouter } from './routes/admin.js';
 import { subscriptionsRouter } from './routes/subscriptions.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { pingDatabase } from './db/pool.js';
+import { toBeijingDateTimeText } from './utils/time.js';
 
 export function createApp() {
   const app = express();
@@ -24,10 +25,14 @@ export function createApp() {
   app.use(pinoHttp({ logger }));
 
   app.get('/health', (_req, res) => {
+    const now = new Date();
     res.json({
       success: true,
       data: {
-        status: 'ok'
+        status: 'ok',
+        revision: 'subscription-select-star-20260616',
+        serverTimeUtc: now.toISOString(),
+        serverTimeBeijing: toBeijingDateTimeText(now)
       }
     });
   });

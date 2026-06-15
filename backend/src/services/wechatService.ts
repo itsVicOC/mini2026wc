@@ -117,12 +117,17 @@ async function getAccessToken() {
 }
 
 async function requestWechat<T>(url: URL, init?: RequestInit) {
-  const response = await fetch(url, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch (error) {
+    throw badGateway(`微信接口请求异常：${formatError(error)}`);
+  }
   const text = await response.text();
   if (!response.ok) {
     throw badGateway(`微信接口请求失败：${response.status} ${text}`);
@@ -136,4 +141,8 @@ async function requestWechat<T>(url: URL, init?: RequestInit) {
 
 function limitTemplateValue(value: string, maxLength: number) {
   return value.length > maxLength ? `${value.slice(0, maxLength - 1)}…` : value;
+}
+
+function formatError(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
 }

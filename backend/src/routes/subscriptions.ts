@@ -7,7 +7,9 @@ import { sendOk } from '../utils/http.js';
 
 const subscribeSchema = z.object({
   code: z.string().min(1),
-  apiMatchId: z.coerce.number().int().positive()
+  apiMatchId: z.coerce.number().int().positive(),
+  expectedUtcDate: z.string().optional(),
+  expectedMatchName: z.string().optional()
 });
 
 const statusSchema = z.object({
@@ -26,7 +28,9 @@ subscriptionsRouter.post('/matches', async (req, res, next) => {
     const data = await upsertMatchSubscription({
       openid,
       apiMatchId: body.apiMatchId,
-      templateId: env.WECHAT_SUBSCRIBE_TEMPLATE_ID
+      templateId: env.WECHAT_SUBSCRIBE_TEMPLATE_ID,
+      expectedUtcDate: body.expectedUtcDate,
+      expectedMatchName: body.expectedMatchName
     });
     sendOk(res, data);
   } catch (error) {

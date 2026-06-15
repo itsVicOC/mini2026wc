@@ -1,6 +1,7 @@
 const api = require('../../services/api');
 const { scoreText, teamName } = require('../../utils/format');
 const {
+  canSubscribeMatch,
   decorateSubscriptionState,
   isSubscriptionEnabled,
   login,
@@ -106,14 +107,24 @@ Page({
     if (!apiMatchId || this.data.subscribingMatchId || this.data.subscribedMatchIds.indexOf(apiMatchId) >= 0) {
       return;
     }
-
+    const match = this.findMatchByApiMatchId(apiMatchId);
+    if (!match || !canSubscribeMatch(match)) {
+      this.refreshSubscriptionState();
+      wx.showToast({ title: '当前比赛已不支持订阅', icon: 'none' });
+      return;
+    }
     this.setData({ subscribingMatchId: apiMatchId });
     this.refreshSubscriptionState();
 
     try {
       await requestSubscribePermission();
       const code = await login();
-      await api.subscribeMatch({ code, apiMatchId });
+      await api.subscribeMatch({
+        code,
+        apiMatchId,
+        expectedUtcDate: match.utcDate,
+        expectedMatchName: this.matchName(match)
+      });
       const subscribedMatchIds = Array.from(new Set([...this.data.subscribedMatchIds, apiMatchId]));
       this.setData({ subscribedMatchIds, subscribingMatchId: null });
       this.refreshSubscriptionState();
@@ -170,6 +181,18 @@ Page({
     return matches
       .filter((match) => ['SCHEDULED', 'TIMED'].indexOf(match.status) >= 0)
       .map((match) => match.apiMatchId);
+  },
+
+  findMatchByApiMatchId(apiMatchId) {
+    const matches = [
+      ...this.data.todayMatches,
+      ...this.data.weekMatches.reduce((result, group) => result.concat(group.matches || []), [])
+    ];
+    return matches.find((match) => match.apiMatchId === apiMatchId);
+  },
+
+  matchName(match) {
+    return `${match.homeName || teamName(match.homeTeam)} vs ${match.awayName || teamName(match.awayTeam)}`;
   }
 });
 

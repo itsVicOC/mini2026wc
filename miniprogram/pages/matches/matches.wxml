@@ -30,19 +30,18 @@
         <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit"></image>
         <text>{{item.homeName}}</text>
       </view>
-      <view class="score">{{item.scoreText}}</view>
+      <view
+        wx:if="{{item.canSubscribe || item.subscribed}}"
+        class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
+        data-match-id="{{item.apiMatchId}}"
+        bindtap="onSubscribeTap"
+      >{{item.subscriptionText}}</view>
+      <view wx:else class="score">{{item.scoreText}}</view>
       <view class="team right">
         <text>{{item.awayName}}</text>
         <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit"></image>
       </view>
     </view>
     <view class="match-foot muted">{{item.stageText}} {{item.groupText}}</view>
-    <view wx:if="{{item.canSubscribe || item.subscribed}}" class="match-actions">
-      <view
-        class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
-        data-match-id="{{item.apiMatchId}}"
-        bindtap="onSubscribeTap"
-      >{{item.subscriptionText}}</view>
-    </view>
   </view>
 </view>

@@ -37,7 +37,7 @@ function getSubscriptionText(canSubscribe, subscribed, loading) {
   if (subscribed) {
     return '已订阅';
   }
-  return canSubscribe ? '订阅开赛通知' : '';
+  return canSubscribe ? '订阅' : '';
 }
 
 function requestSubscribePermission() {

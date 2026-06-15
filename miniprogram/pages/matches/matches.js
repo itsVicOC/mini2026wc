@@ -1,6 +1,7 @@
 const api = require('../../services/api');
 const { groupLabel, scoreText, stageLabel, teamName } = require('../../utils/format');
 const {
+  canSubscribeMatch,
   decorateSubscriptionState,
   isSubscriptionEnabled,
   login,
@@ -108,14 +109,23 @@ Page({
     if (!match || this.data.subscribingMatchId || this.data.subscribedMatchIds.indexOf(apiMatchId) >= 0) {
       return;
     }
-
+    if (!canSubscribeMatch(match)) {
+      this.applyStatus(this.data.activeStatus);
+      wx.showToast({ title: '当前比赛已不支持订阅', icon: 'none' });
+      return;
+    }
     this.setData({ subscribingMatchId: apiMatchId });
     this.applyStatus(this.data.activeStatus);
 
     try {
       await requestSubscribePermission();
       const code = await login();
-      await api.subscribeMatch({ code, apiMatchId });
+      await api.subscribeMatch({
+        code,
+        apiMatchId,
+        expectedUtcDate: match.utcDate,
+        expectedMatchName: this.matchName(match)
+      });
       const subscribedMatchIds = Array.from(new Set([...this.data.subscribedMatchIds, apiMatchId]));
       this.setData({ subscribedMatchIds, subscribingMatchId: null });
       this.applyStatus(this.data.activeStatus);
@@ -154,5 +164,9 @@ Page({
     } catch (error) {
       console.warn('[subscription status failed]', error);
     }
+  },
+
+  matchName(match) {
+    return `${match.homeName || teamName(match.homeTeam)} vs ${match.awayName || teamName(match.awayTeam)}`;
   }
 });

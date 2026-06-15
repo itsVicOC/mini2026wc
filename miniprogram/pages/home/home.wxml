@@ -59,18 +59,17 @@
           <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit"></image>
           <text>{{item.homeName}}</text>
         </view>
-        <view class="score">{{item.scoreText}}</view>
-        <view class="team right">
-          <text>{{item.awayName}}</text>
-          <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit"></image>
-        </view>
-      </view>
-      <view wx:if="{{item.canSubscribe || item.subscribed}}" class="match-actions">
         <view
+          wx:if="{{item.canSubscribe || item.subscribed}}"
           class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
           data-match-id="{{item.apiMatchId}}"
           bindtap="onSubscribeTap"
         >{{item.subscriptionText}}</view>
+        <view wx:else class="score">{{item.scoreText}}</view>
+        <view class="team right">
+          <text>{{item.awayName}}</text>
+          <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit"></image>
+        </view>
       </view>
     </view>
   </view>
@@ -93,18 +92,17 @@
             <image wx:if="{{match.homeTeam.crest}}" class="team-crest" src="{{match.homeTeam.crest}}" mode="aspectFit"></image>
             <text>{{match.homeName}}</text>
           </view>
-          <view class="score">{{match.scoreText}}</view>
-          <view class="team right">
-            <text>{{match.awayName}}</text>
-            <image wx:if="{{match.awayTeam.crest}}" class="team-crest" src="{{match.awayTeam.crest}}" mode="aspectFit"></image>
-          </view>
-        </view>
-        <view wx:if="{{match.canSubscribe || match.subscribed}}" class="match-actions">
           <view
+            wx:if="{{match.canSubscribe || match.subscribed}}"
             class="subscribe-button {{match.subscribed ? 'subscribed' : ''}} {{match.subscriptionLoading ? 'loading' : ''}}"
             data-match-id="{{match.apiMatchId}}"
             bindtap="onSubscribeTap"
           >{{match.subscriptionText}}</view>
+          <view wx:else class="score">{{match.scoreText}}</view>
+          <view class="team right">
+            <text>{{match.awayName}}</text>
+            <image wx:if="{{match.awayTeam.crest}}" class="team-crest" src="{{match.awayTeam.crest}}" mode="aspectFit"></image>
+          </view>
         </view>
       </view>
     </view>
