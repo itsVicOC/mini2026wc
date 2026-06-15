@@ -10,6 +10,7 @@ import { standingsRouter } from './routes/standings.js';
 import { knockoutsRouter } from './routes/knockouts.js';
 import { scorersRouter } from './routes/scorers.js';
 import { adminRouter } from './routes/admin.js';
+import { subscriptionsRouter } from './routes/subscriptions.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { pingDatabase } from './db/pool.js';
 
@@ -53,6 +54,7 @@ export function createApp() {
   app.use('/api/standings', standingsRouter);
   app.use('/api/knockouts', knockoutsRouter);
   app.use('/api/scorers', scorersRouter);
+  app.use('/api/subscriptions', subscriptionsRouter);
   app.use('/api/admin', adminRouter);
 
   app.use(errorHandler);

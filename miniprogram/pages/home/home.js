@@ -1,5 +1,11 @@
 const api = require('../../services/api');
 const { scoreText, teamName } = require('../../utils/format');
+const {
+  decorateSubscriptionState,
+  isSubscriptionEnabled,
+  login,
+  requestSubscribePermission
+} = require('../../utils/subscribe');
 
 Page({
   data: {
@@ -15,7 +21,9 @@ Page({
     todayMatches: [],
     weekMatches: [],
     lastSyncText: '',
-    refreshing: false
+    refreshing: false,
+    subscribingMatchId: null,
+    subscribedMatchIds: []
   },
 
   onLoad() {
@@ -65,6 +73,7 @@ Page({
         loading: false,
         refreshing: false
       });
+      this.loadSubscriptionStatus();
     } catch (error) {
       this.setData({
         loading: false,
@@ -76,7 +85,7 @@ Page({
 
   decorateMatches(matches) {
     return matches.map((match) => ({
-      ...match,
+      ...decorateSubscriptionState(match, this.data.subscribedMatchIds, this.data.subscribingMatchId),
       scoreText: scoreText(match),
       homeName: teamName(match.homeTeam),
       awayName: teamName(match.awayTeam)
@@ -90,6 +99,77 @@ Page({
       .sort()
       .pop();
     return latest ? `最近更新 ${formatBeijingDateTime(latest)}` : '等待首次同步';
+  },
+
+  async onSubscribeTap(event) {
+    const apiMatchId = Number(event.currentTarget.dataset.matchId);
+    if (!apiMatchId || this.data.subscribingMatchId || this.data.subscribedMatchIds.indexOf(apiMatchId) >= 0) {
+      return;
+    }
+
+    this.setData({ subscribingMatchId: apiMatchId });
+    this.refreshSubscriptionState();
+
+    try {
+      await requestSubscribePermission();
+      const code = await login();
+      await api.subscribeMatch({ code, apiMatchId });
+      const subscribedMatchIds = Array.from(new Set([...this.data.subscribedMatchIds, apiMatchId]));
+      this.setData({ subscribedMatchIds, subscribingMatchId: null });
+      this.refreshSubscriptionState();
+      wx.showToast({ title: '订阅成功', icon: 'success' });
+    } catch (error) {
+      this.setData({ subscribingMatchId: null });
+      this.refreshSubscriptionState();
+      wx.showToast({
+        title: error.message || '订阅失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  async loadSubscriptionStatus() {
+    if (!isSubscriptionEnabled()) {
+      return;
+    }
+    const matchIds = this.collectSubscribableMatchIds();
+    if (matchIds.length === 0) {
+      return;
+    }
+
+    try {
+      const code = await login();
+      const result = await api.getMatchSubscriptionStatus({
+        code,
+        matchIds: matchIds.join(',')
+      });
+      this.setData({
+        subscribedMatchIds: result.subscribedMatchIds || []
+      });
+      this.refreshSubscriptionState();
+    } catch (error) {
+      console.warn('[subscription status failed]', error);
+    }
+  },
+
+  refreshSubscriptionState() {
+    this.setData({
+      todayMatches: this.decorateMatches(this.data.todayMatches),
+      weekMatches: this.data.weekMatches.map((group) => ({
+        ...group,
+        matches: this.decorateMatches(group.matches || [])
+      }))
+    });
+  },
+
+  collectSubscribableMatchIds() {
+    const matches = [
+      ...this.data.todayMatches,
+      ...this.data.weekMatches.reduce((result, group) => result.concat(group.matches || []), [])
+    ];
+    return matches
+      .filter((match) => ['SCHEDULED', 'TIMED'].indexOf(match.status) >= 0)
+      .map((match) => match.apiMatchId);
   }
 });
 

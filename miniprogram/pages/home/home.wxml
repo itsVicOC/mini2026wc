@@ -65,6 +65,13 @@
           <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit"></image>
         </view>
       </view>
+      <view wx:if="{{item.canSubscribe || item.subscribed}}" class="match-actions">
+        <view
+          class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
+          data-match-id="{{item.apiMatchId}}"
+          bindtap="onSubscribeTap"
+        >{{item.subscriptionText}}</view>
+      </view>
     </view>
   </view>
 
@@ -91,6 +98,13 @@
             <text>{{match.awayName}}</text>
             <image wx:if="{{match.awayTeam.crest}}" class="team-crest" src="{{match.awayTeam.crest}}" mode="aspectFit"></image>
           </view>
+        </view>
+        <view wx:if="{{match.canSubscribe || match.subscribed}}" class="match-actions">
+          <view
+            class="subscribe-button {{match.subscribed ? 'subscribed' : ''}} {{match.subscriptionLoading ? 'loading' : ''}}"
+            data-match-id="{{match.apiMatchId}}"
+            bindtap="onSubscribeTap"
+          >{{match.subscriptionText}}</view>
         </view>
       </view>
     </view>

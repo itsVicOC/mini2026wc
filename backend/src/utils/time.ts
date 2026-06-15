@@ -35,6 +35,21 @@ export function toBeijingTimeText(value: string | Date) {
   }).format(date);
 }
 
+export function toBeijingDateTimeText(value: string | Date) {
+  const date = typeof value === 'string' ? new Date(value) : value;
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: BEIJING_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).formatToParts(date);
+  const map = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}`;
+}
+
 export function todayInBeijing() {
   return toBeijingDate(new Date());
 }
@@ -44,4 +59,3 @@ export function addDays(dateText: string, days: number) {
   date.setUTCDate(date.getUTCDate() + days);
   return toBeijingDate(date);
 }
-

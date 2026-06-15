@@ -10,6 +10,7 @@ function request(path, options = {}) {
       url,
       method,
       data,
+      header: method === 'GET' ? undefined : { 'content-type': 'application/json' },
       timeout: config.timeout,
       success(response) {
         const body = response.data || {};

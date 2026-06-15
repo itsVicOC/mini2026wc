@@ -26,8 +26,9 @@
 5. 启动后端并访问 `/health`。
 6. 访问 `/health/db` 确认数据库连接正常。
 7. 手动触发一次 `/api/admin/sync`。
-8. 修改小程序 `baseUrl`。
-9. 在微信公众平台配置 request 合法域名。
+8. 如需开赛提醒，在微信公众平台申请订阅消息模板并配置模板 ID。
+9. 修改小程序 `baseUrl` 和订阅消息模板 ID。
+10. 在微信公众平台配置 request 合法域名。
 
 ## 后端开发
 
@@ -65,7 +66,8 @@ curl -X POST http://localhost:3000/api/admin/sync \
 1. 用微信开发者工具导入 `miniprogram/`。
 2. AppID 使用 `YOUR_MINIPROGRAM_APPID`。
 3. 修改 [miniprogram/config/index.js](miniprogram/config/index.js) 中的 `baseUrl`。
-4. 生产环境需要在微信公众平台配置 request 合法域名。
+4. 如需开赛提醒，配置同一个订阅消息模板 ID 到小程序和后端。
+5. 生产环境需要在微信公众平台配置 request 合法域名。
 
 ## 当前状态
 
@@ -74,3 +76,4 @@ curl -X POST http://localhost:3000/api/admin/sync \
 - 已搭建后端 API、MySQL schema、定时同步任务和 1Panel 部署配置。
 - 已搭建微信小程序五个页面：首页、赛程、积分、淘汰赛、射手榜。
 - 已完成 football-data.org 数据同步、积分榜分组兜底、射手榜和赛程展示等首版功能。
+- 已支持未开始比赛订阅开赛通知，后端会在开赛前 5 分钟发送微信订阅消息。

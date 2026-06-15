@@ -37,5 +37,12 @@
       </view>
     </view>
     <view class="match-foot muted">{{item.stageText}} {{item.groupText}}</view>
+    <view wx:if="{{item.canSubscribe || item.subscribed}}" class="match-actions">
+      <view
+        class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
+        data-match-id="{{item.apiMatchId}}"
+        bindtap="onSubscribeTap"
+      >{{item.subscriptionText}}</view>
+    </view>
   </view>
 </view>

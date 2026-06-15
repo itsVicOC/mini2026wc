@@ -34,8 +34,9 @@
 8. 配置反向代理和 HTTPS 域名。
 9. 访问 `https://你的域名/health`，看到 `status: ok`。
 10. 调用 `/api/admin/sync` 手动同步一次数据。
-11. 修改小程序 `baseUrl` 为后端 HTTPS 域名。
-12. 用微信开发者工具导入 `miniprogram/` 预览。
+11. 如果需要开赛提醒，在微信公众平台申请订阅消息模板。
+12. 修改小程序 `baseUrl` 为后端 HTTPS 域名，并填写订阅消息模板 ID。
+13. 用微信开发者工具导入 `miniprogram/` 预览。
 
 下面是详细步骤。
 
@@ -47,8 +48,9 @@
 | --- | --- | --- |
 | `backend/.env` | 本地开发后端时 | 数据库账号、football-data.org Token、同步开关。 |
 | 1Panel 环境变量面板 | 服务器部署后端时 | 和 `.env` 一样，但生产环境建议在 1Panel 页面里填。 |
-| [miniprogram/config/index.js](miniprogram/config/index.js) | 小程序连接后端时 | 把 `baseUrl` 改成你的后端域名。 |
+| [miniprogram/config/index.js](miniprogram/config/index.js) | 小程序连接后端时 | 把 `baseUrl` 改成你的后端域名；如启用开赛提醒，填写 `subscriptionTemplateId`。 |
 | 微信公众平台 request 合法域名 | 小程序上线前 | 添加后端 HTTPS 域名。 |
+| 微信公众平台订阅消息 | 启用开赛提醒时 | 申请一次性订阅消息模板，复制模板 ID 和字段 key。 |
 
 不需要把 football-data.org Token 写进小程序，不需要改小程序页面代码才能同步数据。
 
@@ -118,6 +120,7 @@ USE mini2026wc;
 - `standings`
 - `scorers`
 - `sync_logs`
+- `match_subscriptions`
 
 ### 方法 B：命令行执行
 
@@ -219,6 +222,15 @@ backend/dist/
 | `MYSQL_PASSWORD` | `你的数据库密码` | 数据库密码。 |
 | `APP_TIMEZONE` | `Asia/Shanghai` | 默认北京时间。 |
 | `ADMIN_SYNC_TOKEN` | `一串随机密码` | 手动同步接口密码，自己生成，越长越好。 |
+| `WECHAT_APP_ID` | `你的小程序 AppID` | 开赛提醒需要，用于后端换取用户 openid。 |
+| `WECHAT_APP_SECRET` | `你的小程序 AppSecret` | 开赛提醒需要，只能放后端环境变量，不要写进小程序代码。 |
+| `WECHAT_SUBSCRIBE_TEMPLATE_ID` | `xxxxxxxx` | 微信公众平台订阅消息模板 ID。 |
+| `WECHAT_SUBSCRIBE_PAGE` | `pages/home/home` | 用户点击通知后打开的小程序页面。 |
+| `WECHAT_SUBSCRIBE_MATCH_KEY` | `thing1` | 模板里“比赛名称”字段的 key，按你实际模板字段填写。 |
+| `WECHAT_SUBSCRIBE_TIME_KEY` | `time2` | 模板里“开赛时间”字段的 key，按你实际模板字段填写。 |
+| `WECHAT_SUBSCRIBE_TIP_KEY` | `thing3` | 模板里“温馨提示/备注”字段的 key，按你实际模板字段填写。 |
+| `ENABLE_SUBSCRIPTION_CRON` | `true` | 是否开启开赛提醒发送任务。生产需要提醒时填 `true`。 |
+| `SUBSCRIPTION_NOTIFY_CRON` | `"* * * * *"` | 开赛提醒扫描频率，默认每分钟一次。 |
 | `ENABLE_SYNC_CRON` | `true` | 是否开启定时同步。生产建议填 `true`。 |
 | `ENABLE_FULL_SYNC_CRON` | `false` | 是否额外开启全量同步。通常保持 `false`，避免和分资源同步重复。 |
 | `MATCHES_SYNC_CRON` | `"* * * * *"` | 比赛数据同步频率，默认每分钟一次。 |
@@ -249,6 +261,15 @@ MYSQL_PASSWORD=填你的数据库密码
 
 APP_TIMEZONE=Asia/Shanghai
 ADMIN_SYNC_TOKEN=自己生成一串长密码
+WECHAT_APP_ID=填你的小程序 AppID
+WECHAT_APP_SECRET=填你的小程序 AppSecret
+WECHAT_SUBSCRIBE_TEMPLATE_ID=填订阅消息模板 ID
+WECHAT_SUBSCRIBE_PAGE=pages/home/home
+WECHAT_SUBSCRIBE_MATCH_KEY=thing1
+WECHAT_SUBSCRIBE_TIME_KEY=time2
+WECHAT_SUBSCRIBE_TIP_KEY=thing3
+ENABLE_SUBSCRIPTION_CRON=true
+SUBSCRIPTION_NOTIFY_CRON="* * * * *"
 ENABLE_SYNC_CRON=true
 ENABLE_FULL_SYNC_CRON=false
 MATCHES_SYNC_CRON="* * * * *"
@@ -266,7 +287,87 @@ CACHE_TTL_SECONDS=30
 - `MYSQL_HOST` 要填 MySQL 的容器服务名、1Panel 显示的数据库连接地址，或服务器内网 IP。
 - 如果后端直接运行在服务器宿主机上，且 MySQL 也监听宿主机本地端口，`MYSQL_HOST` 才通常填 `127.0.0.1`。
 - `ADMIN_SYNC_TOKEN` 不要用 `change-me`，请改成自己的随机字符串。
+- `WECHAT_APP_SECRET` 是敏感信息，只能填在后端环境变量或 1Panel 密钥配置里，不要提交到 GitHub。
+- 如果暂时不启用开赛提醒，可以把 `ENABLE_SUBSCRIPTION_CRON=false`，并留空 `WECHAT_*` 变量；小程序端也不要填写 `subscriptionTemplateId`。
 - football-data.org 免费额度为每分钟 10 次时，默认配置约为：matches 每分钟 1 次，standings 每 5 分钟 1 次，scorers 每 5 分钟 1 次，teams 每天 1 次，额度比较充裕。
+
+### 6.3 配置开赛提醒订阅消息
+
+如果你要让用户点击“订阅开赛通知”，并在比赛开始前 5 分钟收到微信通知，需要额外做这一节。
+
+#### 第一步：拿到 AppSecret
+
+1. 打开微信公众平台。
+2. 进入你的小程序后台。
+3. 打开“开发管理”或“开发设置”。
+4. 找到 AppID 和 AppSecret。
+5. 把 AppID 填到后端环境变量 `WECHAT_APP_ID`。
+6. 把 AppSecret 填到后端环境变量 `WECHAT_APP_SECRET`。
+
+注意：AppSecret 只能放在后端服务器，不能写进小程序代码，也不要发到 GitHub。
+
+#### 第二步：申请订阅消息模板
+
+1. 在微信公众平台进入“功能”。
+2. 找到“订阅消息”。
+3. 选择“一次性订阅消息”模板。
+4. 搜索和“比赛提醒”“活动开始提醒”“赛事开赛提醒”接近的模板。
+5. 模板字段建议包含：
+   - 比赛名称，例如 `thing1`
+   - 开赛时间，例如 `time2`
+   - 温馨提示或备注，例如 `thing3`
+6. 保存模板后，复制模板 ID。
+
+把模板 ID 填到两个地方：
+
+```text
+后端环境变量：
+WECHAT_SUBSCRIBE_TEMPLATE_ID=你的模板 ID
+
+小程序配置：
+miniprogram/config/index.js 里的 subscriptionTemplateId
+```
+
+#### 第三步：确认模板字段 key
+
+微信模板详情里每个字段后面会有 key，例如：
+
+```text
+比赛名称 thing1
+开赛时间 time2
+温馨提示 thing3
+```
+
+如果你的模板字段刚好是这样，保持默认即可：
+
+```text
+WECHAT_SUBSCRIBE_MATCH_KEY=thing1
+WECHAT_SUBSCRIBE_TIME_KEY=time2
+WECHAT_SUBSCRIBE_TIP_KEY=thing3
+```
+
+如果你的模板不是这几个 key，就把环境变量改成微信后台显示的实际 key。
+
+#### 第四步：开启定时发送
+
+生产环境建议：
+
+```text
+ENABLE_SUBSCRIPTION_CRON=true
+SUBSCRIPTION_NOTIFY_CRON="* * * * *"
+```
+
+这表示后端每分钟检查一次 `match_subscriptions` 表，找到距离开赛前 5 分钟应该发送的记录，然后调用微信订阅消息接口。
+
+#### 第五步：老数据库升级
+
+如果你之前已经执行过老版 `schema.sql`，不用删库重建，只需要执行：
+
+[backend/database/fixes/add_match_subscriptions.sql](backend/database/fixes/add_match_subscriptions.sql)
+
+执行方式和初始化表一样，在 1Panel SQL 窗口复制执行即可。
+
+如果你是全新部署，直接执行最新版 [schema.sql](backend/database/schema.sql) 就已经包含这张表。
 
 ## 7. 在 1Panel 创建后端应用
 
@@ -506,6 +607,20 @@ baseUrl: 'https://api.example.com'
 
 ```js
 baseUrl: 'https://api.example.com/'
+```
+
+如果启用了开赛提醒，还需要把订阅消息模板 ID 填到同一个配置文件：
+
+```js
+subscriptionTemplateId: '你的订阅消息模板 ID'
+```
+
+这个模板 ID 必须和后端环境变量 `WECHAT_SUBSCRIBE_TEMPLATE_ID` 保持一致。
+
+如果暂时不启用开赛提醒，保持空字符串即可：
+
+```js
+subscriptionTemplateId: ''
 ```
 
 ### 11.2 导入微信开发者工具

@@ -156,3 +156,32 @@
   font-weight: 800;
   color: #244931;
 }
+
+.match-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18rpx;
+}
+
+.subscribe-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 188rpx;
+  height: 56rpx;
+  padding: 0 22rpx;
+  border-radius: 8rpx;
+  background: #0b7a3b;
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+
+.subscribe-button.subscribed {
+  background: #eaf5ee;
+  color: #0b7a3b;
+}
+
+.subscribe-button.loading {
+  opacity: 0.72;
+}

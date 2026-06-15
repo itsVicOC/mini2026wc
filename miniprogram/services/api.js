@@ -28,10 +28,26 @@ function getScorers(limit = 20) {
   });
 }
 
+function subscribeMatch(data) {
+  return request('/api/subscriptions/matches', {
+    method: 'POST',
+    data
+  });
+}
+
+function getMatchSubscriptionStatus(data) {
+  return request('/api/subscriptions/matches/status', {
+    method: 'POST',
+    data
+  });
+}
+
 module.exports = {
   getHome,
   getMatches,
   getStandings,
   getKnockouts,
-  getScorers
+  getScorers,
+  subscribeMatch,
+  getMatchSubscriptionStatus
 };
