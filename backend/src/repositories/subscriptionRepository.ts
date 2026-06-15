@@ -55,7 +55,7 @@ export async function getSubscribedMatchIds(openid: string, apiMatchIds: number[
   }
 
   const placeholders = apiMatchIds.map((_, index) => `:matchId${index}`).join(', ');
-  const values: Record<string, unknown> = {
+  const values: Record<string, string | number> = {
     openid,
     templateId: env.WECHAT_SUBSCRIBE_TEMPLATE_ID
   };

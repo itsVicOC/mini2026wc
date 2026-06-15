@@ -148,7 +148,7 @@ export async function getMatches(params: {
   knockoutOnly?: boolean;
 }) {
   const conditions = ['competition_code = :competitionCode', 'season = :season'];
-  const values: Record<string, unknown> = {
+  const values: Record<string, string | number> = {
     competitionCode: appConfig.competitionCode,
     season: appConfig.season
   };

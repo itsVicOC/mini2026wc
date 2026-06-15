@@ -1,5 +1,5 @@
 const api = require('../../services/api');
-const { scoreText, teamName } = require('../../utils/format');
+const { groupLabel, scoreText, stageLabel, teamName } = require('../../utils/format');
 const {
   decorateSubscriptionState,
   isSubscriptionEnabled,
@@ -60,8 +60,8 @@ Page({
           scoreText: scoreText(match),
           homeName: teamName(match.homeTeam),
           awayName: teamName(match.awayTeam),
-          stageText: match.stage || '待定阶段',
-          groupText: match.group || ''
+          stageText: stageLabel(match.stage),
+          groupText: match.group ? groupLabel(match.group) : ''
         })),
         loading: false
       });

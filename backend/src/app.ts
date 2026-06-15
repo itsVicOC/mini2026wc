@@ -2,7 +2,7 @@ import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import pinoHttp from 'pino-http';
+import { pinoHttp } from 'pino-http';
 import { logger } from './utils/logger.js';
 import { homeRouter } from './routes/home.js';
 import { matchesRouter } from './routes/matches.js';

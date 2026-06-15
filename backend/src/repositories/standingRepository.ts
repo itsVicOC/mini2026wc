@@ -55,7 +55,7 @@ export async function upsertStandings(rows: StandingRecord[]) {
 
 export async function getStandings(group?: string) {
   const conditions = ['competition_code = :competitionCode', 'season = :season'];
-  const values: Record<string, unknown> = {
+  const values: Record<string, string | number> = {
     competitionCode: appConfig.competitionCode,
     season: appConfig.season
   };

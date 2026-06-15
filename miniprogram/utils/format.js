@@ -15,12 +15,30 @@ function groupLabel(group) {
   if (!group) {
     return '未分组';
   }
-  const text = String(group).replace('GROUP_', '').replace('GROUP ', '').trim();
-  return `${text}组`;
+  const match = String(group).trim().toUpperCase().match(/^(?:GROUP[_\s-]?)?([A-L])$/);
+  return match ? `${match[1]}组` : String(group);
+}
+
+function stageLabel(stage) {
+  const map = {
+    GROUP_STAGE: '小组赛',
+    LAST_32: '32 强',
+    LAST_16: '16 强',
+    QUARTER_FINALS: '8 强',
+    SEMI_FINALS: '半决赛',
+    THIRD_PLACE: '三四名决赛',
+    FINAL: '决赛'
+  };
+  if (!stage) {
+    return '待定阶段';
+  }
+  const normalized = String(stage).trim().toUpperCase();
+  return map[normalized] || String(stage);
 }
 
 module.exports = {
   scoreText,
   teamName,
-  groupLabel
+  groupLabel,
+  stageLabel
 };
