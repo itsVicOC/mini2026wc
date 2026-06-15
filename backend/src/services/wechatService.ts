@@ -1,4 +1,5 @@
 import { env } from '../config/env.js';
+import { badGateway, serviceUnavailable } from '../utils/errors.js';
 
 type Code2SessionResponse = {
   openid?: string;
@@ -28,7 +29,7 @@ let cachedAccessToken: {
 
 export function assertWechatConfigured() {
   if (!env.WECHAT_APP_ID || !env.WECHAT_APP_SECRET || !env.WECHAT_SUBSCRIBE_TEMPLATE_ID) {
-    throw new Error('微信订阅消息未配置，请检查 WECHAT_APP_ID、WECHAT_APP_SECRET、WECHAT_SUBSCRIBE_TEMPLATE_ID');
+    throw serviceUnavailable('微信订阅消息未配置，请检查 WECHAT_APP_ID、WECHAT_APP_SECRET、WECHAT_SUBSCRIBE_TEMPLATE_ID');
   }
 }
 
@@ -43,7 +44,7 @@ export async function codeToOpenid(code: string) {
 
   const data = await requestWechat<Code2SessionResponse>(url);
   if (!data.openid) {
-    throw new Error(`微信登录失败：${data.errmsg || data.errcode || 'missing openid'}`);
+    throw badGateway(`微信登录失败：${data.errmsg || data.errcode || 'missing openid'}`);
   }
   return data.openid;
 }
@@ -85,7 +86,7 @@ export async function sendSubscribeMessage(params: {
   });
 
   if (response.errcode && response.errcode !== 0) {
-    throw new Error(`微信订阅消息发送失败：${response.errmsg || response.errcode}`);
+    throw badGateway(`微信订阅消息发送失败：${response.errmsg || response.errcode}`);
   }
 
   return response.msgid ?? null;
@@ -105,7 +106,7 @@ async function getAccessToken() {
 
   const data = await requestWechat<AccessTokenResponse>(url);
   if (!data.access_token) {
-    throw new Error(`微信 access_token 获取失败：${data.errmsg || data.errcode || 'missing access_token'}`);
+    throw badGateway(`微信 access_token 获取失败：${data.errmsg || data.errcode || 'missing access_token'}`);
   }
 
   cachedAccessToken = {
@@ -124,9 +125,13 @@ async function requestWechat<T>(url: URL, init?: RequestInit) {
   });
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`微信接口请求失败：${response.status} ${text}`);
+    throw badGateway(`微信接口请求失败：${response.status} ${text}`);
   }
-  return JSON.parse(text) as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw badGateway(`微信接口响应异常：${text.slice(0, 200)}`);
+  }
 }
 
 function limitTemplateValue(value: string, maxLength: number) {

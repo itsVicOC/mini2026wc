@@ -59,14 +59,19 @@ export function startScheduler() {
 
 async function runOnce(jobName: string, task: () => Promise<unknown>) {
   if (runningJobs.has(jobName)) {
-    logger.warn({ jobName }, 'sync job skipped because previous sync is still running');
+    logger.warn({ jobName }, 'scheduled job skipped because previous run is still active');
     return;
   }
 
   runningJobs.add(jobName);
   try {
-    logger.info({ jobName }, 'running sync job');
+    logger.info({ jobName }, 'running scheduled job');
     await task();
+  } catch (error) {
+    logger.error(
+      { jobName, error: error instanceof Error ? error.message : String(error) },
+      'scheduled job failed'
+    );
   } finally {
     runningJobs.delete(jobName);
   }

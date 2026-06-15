@@ -41,11 +41,6 @@ Page({
     this.setData({ loading: true, error: '' });
     try {
       const allStandings = await api.getStandings();
-      console.info('[standings loaded]', {
-        count: allStandings.length,
-        groups: uniqueGroups(allStandings)
-      });
-
       this.setData({
         allStandings,
         loading: false
@@ -98,17 +93,4 @@ function groupKey(group) {
   const text = String(group || '').toUpperCase().replace(/_/g, ' ').trim();
   const match = text.match(/([A-L])$/);
   return match ? match[1] : text;
-}
-
-function uniqueGroups(standings) {
-  const seen = {};
-  return standings
-    .map((row) => row.group)
-    .filter((group) => {
-      if (!group || seen[group]) {
-        return false;
-      }
-      seen[group] = true;
-      return true;
-    });
 }

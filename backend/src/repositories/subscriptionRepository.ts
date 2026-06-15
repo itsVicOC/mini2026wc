@@ -1,6 +1,7 @@
 import { pool } from '../db/pool.js';
 import { appConfig } from '../config/app.js';
 import { env } from '../config/env.js';
+import { badRequest } from '../utils/errors.js';
 import { toBeijingDateTimeText, toMysqlDateTime } from '../utils/time.js';
 
 const NOTIFY_BEFORE_MINUTES = 5;
@@ -12,13 +13,13 @@ export async function upsertMatchSubscription(params: {
 }) {
   const match = await getSubscribableMatch(params.apiMatchId);
   if (!match) {
-    throw new Error('比赛不存在，或当前状态不支持订阅');
+    throw badRequest('比赛不存在，或当前状态不支持订阅');
   }
 
   const matchTime = new Date(`${match.utc_date.replace(' ', 'T')}Z`);
   const sendAt = toMysqlDateTime(new Date(matchTime.getTime() - NOTIFY_BEFORE_MINUTES * 60 * 1000));
   if (!sendAt) {
-    throw new Error('比赛开赛时间异常，无法订阅');
+    throw badRequest('比赛开赛时间异常，无法订阅');
   }
 
   await pool.execute(

@@ -37,6 +37,10 @@ subscriptionsRouter.post('/matches', async (req, res, next) => {
 subscriptionsRouter.post('/matches/status', async (req, res, next) => {
   try {
     const body = statusSchema.parse(req.body);
+    if (!env.WECHAT_SUBSCRIBE_TEMPLATE_ID) {
+      sendOk(res, { subscribedMatchIds: [] });
+      return;
+    }
     const openid = await codeToOpenid(body.code);
     const matchIds = normalizeMatchIds(body.matchIds);
     const subscribedMatchIds = await getSubscribedMatchIds(openid, matchIds);
