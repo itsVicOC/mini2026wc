@@ -32,7 +32,7 @@ function decorateSubscriptionState(match, subscribedMatchIds = [], loadingMatchI
 
 function getSubscriptionText(canSubscribe, subscribed, loading) {
   if (loading) {
-    return '订阅中';
+    return '处理中';
   }
   if (subscribed) {
     return '已订阅';

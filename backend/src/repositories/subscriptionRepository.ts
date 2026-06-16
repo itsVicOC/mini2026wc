@@ -4,6 +4,7 @@ import { env } from '../config/env.js';
 import { badRequest } from '../utils/errors.js';
 import { toDisplayStatus } from '../utils/status.js';
 import { parseUtcDateTime, toBeijingDateTimeText, toMysqlDateTime } from '../utils/time.js';
+import type { ResultSetHeader } from 'mysql2';
 
 const NOTIFY_BEFORE_MINUTES = 5;
 
@@ -87,6 +88,59 @@ export async function getSubscribedMatchIds(openid: string, apiMatchIds: number[
   );
 
   return (rows as Array<{ api_match_id: number }>).map((row) => Number(row.api_match_id));
+}
+
+export async function cancelMatchSubscription(params: {
+  openid: string;
+  apiMatchId: number;
+  templateId: string;
+}) {
+  try {
+    const [result] = await pool.execute<ResultSetHeader>(
+      `
+        UPDATE match_subscriptions
+        SET \`status\` = 'cancelled', error_message = NULL
+        WHERE openid = :openid
+          AND api_match_id = :apiMatchId
+          AND template_id = :templateId
+          AND \`status\` = 'pending'
+      `,
+      params
+    );
+
+    if (result.affectedRows > 0) {
+      return {
+        apiMatchId: params.apiMatchId,
+        status: 'cancelled'
+      };
+    }
+
+    const [rows] = await pool.execute(
+      `
+        SELECT \`status\`
+        FROM match_subscriptions
+        WHERE openid = :openid
+          AND api_match_id = :apiMatchId
+          AND template_id = :templateId
+        LIMIT 1
+      `,
+      params
+    );
+    const currentStatus = (rows as Array<{ status: string }>)[0]?.status;
+    if (currentStatus === 'sent') {
+      throw badRequest('开赛提醒已发送，不能取消');
+    }
+
+    return {
+      apiMatchId: params.apiMatchId,
+      status: 'cancelled'
+    };
+  } catch (error) {
+    if (error instanceof Error && error.name === 'HttpError') {
+      throw error;
+    }
+    throw badRequest(`取消订阅失败：${formatDatabaseError(error)}`);
+  }
 }
 
 export async function getDueSubscriptions(limit = 100) {

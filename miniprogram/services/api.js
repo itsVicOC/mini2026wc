@@ -39,6 +39,13 @@ function subscribeMatch(data) {
   });
 }
 
+function cancelMatchSubscription(data) {
+  return request('/api/subscriptions/matches/cancel', {
+    method: 'POST',
+    data
+  });
+}
+
 function getMatchSubscriptionStatus(data) {
   return request('/api/subscriptions/matches/status', {
     method: 'POST',
@@ -54,5 +61,6 @@ module.exports = {
   getKnockouts,
   getScorers,
   subscribeMatch,
+  cancelMatchSubscription,
   getMatchSubscriptionStatus
 };

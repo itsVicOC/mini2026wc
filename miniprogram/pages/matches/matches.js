@@ -107,7 +107,11 @@ Page({
   async onSubscribeTap(event) {
     const apiMatchId = Number(event.currentTarget.dataset.matchId);
     const match = this.data.allMatches.find((item) => item.apiMatchId === apiMatchId);
-    if (!match || this.data.subscribingMatchId || this.data.subscribedMatchIds.indexOf(apiMatchId) >= 0) {
+    if (!match || this.data.subscribingMatchId) {
+      return;
+    }
+    if (this.data.subscribedMatchIds.indexOf(apiMatchId) >= 0) {
+      this.cancelSubscription(match);
       return;
     }
     if (!canSubscribeMatch(match)) {
@@ -136,6 +140,38 @@ Page({
       this.applyStatus(this.data.activeStatus);
       wx.showToast({
         title: error.message || '订阅失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  async cancelSubscription(match) {
+    const confirmed = await confirmCancelSubscription(this.matchName(match));
+    if (!confirmed) {
+      return;
+    }
+
+    const apiMatchId = match.apiMatchId;
+    this.setData({ subscribingMatchId: apiMatchId });
+    this.applyStatus(this.data.activeStatus);
+
+    try {
+      const code = await login();
+      await api.cancelMatchSubscription({
+        code,
+        apiMatchId
+      });
+      this.setData({
+        subscribedMatchIds: this.data.subscribedMatchIds.filter((id) => id !== apiMatchId),
+        subscribingMatchId: null
+      });
+      this.applyStatus(this.data.activeStatus);
+      wx.showToast({ title: '已取消订阅', icon: 'success' });
+    } catch (error) {
+      this.setData({ subscribingMatchId: null });
+      this.applyStatus(this.data.activeStatus);
+      wx.showToast({
+        title: error.message || '取消失败',
         icon: 'none'
       });
     }
@@ -182,3 +218,20 @@ Page({
     return `${match.homeName || teamName(match.homeTeam)} vs ${match.awayName || teamName(match.awayTeam)}`;
   }
 });
+
+function confirmCancelSubscription(matchName) {
+  return new Promise((resolve) => {
+    wx.showModal({
+      title: '取消订阅',
+      content: `确定取消 ${matchName} 的开赛提醒吗？`,
+      confirmText: '取消订阅',
+      confirmColor: '#b23b2e',
+      success(result) {
+        resolve(Boolean(result.confirm));
+      },
+      fail() {
+        resolve(false);
+      }
+    });
+  });
+}

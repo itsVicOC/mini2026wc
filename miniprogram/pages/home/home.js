@@ -105,10 +105,17 @@ Page({
 
   async onSubscribeTap(event) {
     const apiMatchId = Number(event.currentTarget.dataset.matchId);
-    if (!apiMatchId || this.data.subscribingMatchId || this.data.subscribedMatchIds.indexOf(apiMatchId) >= 0) {
+    if (!apiMatchId || this.data.subscribingMatchId) {
       return;
     }
     const match = this.findMatchByApiMatchId(apiMatchId);
+    if (!match) {
+      return;
+    }
+    if (this.data.subscribedMatchIds.indexOf(apiMatchId) >= 0) {
+      this.cancelSubscription(match);
+      return;
+    }
     if (!match || !canSubscribeMatch(match)) {
       this.refreshSubscriptionState();
       wx.showToast({ title: '当前比赛已不支持订阅', icon: 'none' });
@@ -135,6 +142,38 @@ Page({
       this.refreshSubscriptionState();
       wx.showToast({
         title: error.message || '订阅失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  async cancelSubscription(match) {
+    const confirmed = await confirmCancelSubscription(this.matchName(match));
+    if (!confirmed) {
+      return;
+    }
+
+    const apiMatchId = match.apiMatchId;
+    this.setData({ subscribingMatchId: apiMatchId });
+    this.refreshSubscriptionState();
+
+    try {
+      const code = await login();
+      await api.cancelMatchSubscription({
+        code,
+        apiMatchId
+      });
+      this.setData({
+        subscribedMatchIds: this.data.subscribedMatchIds.filter((id) => id !== apiMatchId),
+        subscribingMatchId: null
+      });
+      this.refreshSubscriptionState();
+      wx.showToast({ title: '已取消订阅', icon: 'success' });
+    } catch (error) {
+      this.setData({ subscribingMatchId: null });
+      this.refreshSubscriptionState();
+      wx.showToast({
+        title: error.message || '取消失败',
         icon: 'none'
       });
     }
@@ -226,4 +265,21 @@ function parseDate(value) {
   const normalized = text.includes('T') ? text : text.replace(' ', 'T');
   const date = new Date(`${normalized}${/[zZ]|[+-]\d{2}:?\d{2}$/.test(normalized) ? '' : 'Z'}`);
   return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function confirmCancelSubscription(matchName) {
+  return new Promise((resolve) => {
+    wx.showModal({
+      title: '取消订阅',
+      content: `确定取消 ${matchName} 的开赛提醒吗？`,
+      confirmText: '取消订阅',
+      confirmColor: '#b23b2e',
+      success(result) {
+        resolve(Boolean(result.confirm));
+      },
+      fail() {
+        resolve(false);
+      }
+    });
+  });
 }

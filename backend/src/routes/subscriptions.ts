@@ -2,7 +2,11 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { env } from '../config/env.js';
 import { codeToOpenid } from '../services/wechatService.js';
-import { getSubscribedMatchIds, upsertMatchSubscription } from '../repositories/subscriptionRepository.js';
+import {
+  cancelMatchSubscription,
+  getSubscribedMatchIds,
+  upsertMatchSubscription
+} from '../repositories/subscriptionRepository.js';
 import { sendOk } from '../utils/http.js';
 
 const subscribeSchema = z.object({
@@ -31,6 +35,21 @@ subscriptionsRouter.post('/matches', async (req, res, next) => {
       templateId: env.WECHAT_SUBSCRIBE_TEMPLATE_ID,
       expectedUtcDate: body.expectedUtcDate,
       expectedMatchName: body.expectedMatchName
+    });
+    sendOk(res, data);
+  } catch (error) {
+    next(error);
+  }
+});
+
+subscriptionsRouter.post('/matches/cancel', async (req, res, next) => {
+  try {
+    const body = subscribeSchema.pick({ code: true, apiMatchId: true }).parse(req.body);
+    const openid = await codeToOpenid(body.code);
+    const data = await cancelMatchSubscription({
+      openid,
+      apiMatchId: body.apiMatchId,
+      templateId: env.WECHAT_SUBSCRIBE_TEMPLATE_ID
     });
     sendOk(res, data);
   } catch (error) {

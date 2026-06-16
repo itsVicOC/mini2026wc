@@ -93,7 +93,17 @@ backend/
 
 `GET /api/scorers?limit=20`
 
-### 4.7 手动同步
+### 4.7 开赛订阅
+
+`POST /api/subscriptions/matches`
+
+`POST /api/subscriptions/matches/cancel`
+
+`POST /api/subscriptions/matches/status`
+
+用途：订阅未开始比赛的开赛提醒，取消尚未发送的提醒，并查询当前用户已订阅比赛。
+
+### 4.8 手动同步
 
 `POST /api/admin/sync`
 
