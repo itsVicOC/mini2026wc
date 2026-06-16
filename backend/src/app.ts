@@ -9,6 +9,7 @@ import { matchesRouter } from './routes/matches.js';
 import { standingsRouter } from './routes/standings.js';
 import { knockoutsRouter } from './routes/knockouts.js';
 import { scorersRouter } from './routes/scorers.js';
+import { teamsRouter } from './routes/teams.js';
 import { adminRouter } from './routes/admin.js';
 import { subscriptionsRouter } from './routes/subscriptions.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -30,7 +31,7 @@ export function createApp() {
       success: true,
       data: {
         status: 'ok',
-        revision: 'subscription-cancel-20260616',
+        revision: 'team-detail-20260617',
         serverTimeUtc: now.toISOString(),
         serverTimeBeijing: toBeijingDateTimeText(now)
       }
@@ -59,6 +60,7 @@ export function createApp() {
   app.use('/api/standings', standingsRouter);
   app.use('/api/knockouts', knockoutsRouter);
   app.use('/api/scorers', scorersRouter);
+  app.use('/api/teams', teamsRouter);
   app.use('/api/subscriptions', subscriptionsRouter);
   app.use('/api/admin', adminRouter);
 

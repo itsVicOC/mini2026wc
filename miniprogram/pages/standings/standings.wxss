@@ -79,14 +79,28 @@
   font-weight: 700;
 }
 
+.team-cell.tappable {
+  color: #0b7a3b;
+}
+
+.team-cell.tappable:active {
+  opacity: 0.72;
+}
+
 .team-cell text {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.team-arrow {
+  flex: 0 0 auto;
+  color: #d0a955;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
 .points {
   color: #0b7a3b;
   font-weight: 900;
 }
-

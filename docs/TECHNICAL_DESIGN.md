@@ -85,15 +85,21 @@ backend/
 
 `GET /api/standings?group=GROUP_A`
 
-### 4.5 淘汰赛
+### 4.5 球队详情
+
+`GET /api/teams/:apiTeamId`
+
+用途：基于现有 MySQL 数据聚合球队基础信息、小组排名、本届比赛战况、后续赛程和队内射手，不新增 football-data.org 请求。
+
+### 4.6 淘汰赛
 
 `GET /api/knockouts`
 
-### 4.6 射手榜
+### 4.7 射手榜
 
 `GET /api/scorers?limit=20`
 
-### 4.7 开赛订阅
+### 4.8 开赛订阅
 
 `POST /api/subscriptions/matches`
 
@@ -103,7 +109,7 @@ backend/
 
 用途：订阅未开始比赛的开赛提醒，取消尚未发送的提醒，并查询当前用户已订阅比赛。
 
-### 4.8 手动同步
+### 4.9 手动同步
 
 `POST /api/admin/sync`
 

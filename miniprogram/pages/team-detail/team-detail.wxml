@@ -1,0 +1,110 @@
+<view class="page team-detail-page">
+  <view wx:if="{{loading}}" class="card empty">加载球队详情中...</view>
+  <view wx:elif="{{error}}" class="card empty">{{error}}</view>
+
+  <block wx:elif="{{detail}}">
+    <view class="team-hero">
+      <image wx:if="{{detail.team.crest}}" class="hero-crest" src="{{detail.team.crest}}" mode="aspectFit"></image>
+      <view class="team-hero-main">
+        <view class="team-title">{{detail.teamText}}</view>
+        <view class="team-subtitle">{{detail.groupText}} · {{detail.standingText}}</view>
+        <view class="team-summary">{{detail.summaryText}}</view>
+      </view>
+    </view>
+
+    <view class="section stat-grid">
+      <view wx:for="{{detail.statCards}}" wx:key="label" class="stat-card card">
+        <view class="stat-value">{{item.value}}</view>
+        <view class="stat-label">{{item.label}}</view>
+      </view>
+    </view>
+
+    <view class="section card panel">
+      <view class="panel-title">本届表现</view>
+      <view wx:for="{{detail.recordRows}}" wx:key="label" class="info-row">
+        <text class="info-label">{{item.label}}</text>
+        <text class="info-value">{{item.value}}</text>
+      </view>
+      <view wx:if="{{detail.formItems.length}}" class="form-row">
+        <text class="info-label">近期战绩</text>
+        <view class="form-list">
+          <text wx:for="{{detail.formItems}}" wx:key="key" class="{{item.className}}">{{item.text}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section card panel">
+      <view class="panel-head">
+        <view class="panel-title">本届战况</view>
+        <view class="panel-meta">{{detail.finishedMatches.length}} 场</view>
+      </view>
+      <view wx:if="{{!detail.finishedMatches.length}}" class="mini-empty">暂无已完赛比赛</view>
+      <view
+        wx:for="{{detail.finishedMatches}}"
+        wx:key="apiMatchId"
+        class="{{item.rowClass}}"
+        data-match-id="{{item.apiMatchId}}"
+        data-can-view-detail="{{item.canViewDetail}}"
+        bindtap="onMatchTap"
+      >
+        <view class="match-left">
+          <image wx:if="{{item.opponent.crest}}" class="opponent-crest" src="{{item.opponent.crest}}" mode="aspectFit"></image>
+          <view class="match-main">
+            <view class="opponent-name">{{item.opponentName}}</view>
+            <view class="match-sub">{{item.beijingDate}} · {{item.stageText}} {{item.groupText}}</view>
+          </view>
+        </view>
+        <view class="match-result">
+          <text class="{{item.resultClass}}">{{item.result}}</text>
+          <text class="match-score">{{item.scoreText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section card panel">
+      <view class="panel-head">
+        <view class="panel-title">后续赛程</view>
+        <view class="panel-meta">{{detail.upcomingMatches.length}} 场</view>
+      </view>
+      <view wx:if="{{!detail.upcomingMatches.length}}" class="mini-empty">暂无后续赛程</view>
+      <view
+        wx:for="{{detail.upcomingMatches}}"
+        wx:key="apiMatchId"
+        class="{{item.rowClass}}"
+        data-match-id="{{item.apiMatchId}}"
+        data-can-view-detail="{{item.canViewDetail}}"
+        bindtap="onMatchTap"
+      >
+        <view class="match-left">
+          <image wx:if="{{item.opponent.crest}}" class="opponent-crest" src="{{item.opponent.crest}}" mode="aspectFit"></image>
+          <view class="match-main">
+            <view class="opponent-name">{{item.opponentName}}</view>
+            <view class="match-sub">{{item.beijingDate}} · {{item.beijingTimeText}}</view>
+          </view>
+        </view>
+        <view
+          wx:if="{{item.canSubscribe || item.subscribed}}"
+          class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
+          data-match-id="{{item.apiMatchId}}"
+          catchtap="onSubscribeTap"
+        >{{item.subscriptionText}}</view>
+        <view wx:else class="match-status">{{item.displayStatus}}</view>
+      </view>
+    </view>
+
+    <view class="section card panel">
+      <view class="panel-head">
+        <view class="panel-title">队内射手</view>
+        <view class="panel-meta">{{detail.scorers.length}} 人</view>
+      </view>
+      <view wx:if="{{!detail.hasScorers}}" class="mini-empty">暂无进球数据</view>
+      <view wx:for="{{detail.scorers}}" wx:key="key" class="scorer-row">
+        <view class="scorer-name">{{item.player.name}}</view>
+        <view class="scorer-stat">
+          <text>{{item.goals}} 球</text>
+          <text>助攻 {{item.assistsText}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

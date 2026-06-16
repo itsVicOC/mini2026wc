@@ -22,6 +22,10 @@ function getStandings(group) {
   });
 }
 
+function getTeamDetail(apiTeamId) {
+  return request(`/api/teams/${apiTeamId}`);
+}
+
 function getKnockouts() {
   return request('/api/knockouts');
 }
@@ -58,6 +62,7 @@ module.exports = {
   getMatches,
   getMatchDetail,
   getStandings,
+  getTeamDetail,
   getKnockouts,
   getScorers,
   subscribeMatch,

@@ -33,9 +33,10 @@
     </view>
     <view wx:for="{{standings}}" wx:key="key" class="table-row">
       <view class="rank {{item.rankClass}}">{{item.position}}</view>
-      <view class="team-cell">
+      <view class="team-cell tappable" data-team-id="{{item.team.apiTeamId}}" catchtap="onTeamTap">
         <image wx:if="{{item.team.crest}}" class="team-crest" src="{{item.team.crest}}" mode="aspectFit"></image>
         <text>{{item.teamText}}</text>
+        <text class="team-arrow">›</text>
       </view>
       <view>{{item.playedGames}}</view>
       <view>{{item.won}}</view>

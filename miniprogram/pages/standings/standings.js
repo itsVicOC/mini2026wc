@@ -37,6 +37,16 @@ Page({
     this.applyGroup(event.currentTarget.dataset.value);
   },
 
+  onTeamTap(event) {
+    const apiTeamId = Number(event.currentTarget.dataset.teamId);
+    if (!apiTeamId) {
+      return;
+    }
+    wx.navigateTo({
+      url: `/pages/team-detail/team-detail?apiTeamId=${apiTeamId}`
+    });
+  },
+
   async loadData() {
     this.setData({ loading: true, error: '' });
     try {
