@@ -28,12 +28,12 @@
 
 ### 2.2 不做范围
 
-- 不提供用户登录、收藏球队、推送提醒、评论互动等社区功能。
+- 不提供用户登录、收藏球队、评论互动等社区功能。
 - 不提供视频直播、图文直播、赔率、彩票、竞猜功能。
 - 不在小程序端直接调用 football-data.org API。
 - 不做多赛事平台，当前仅聚焦 2026 年 FIFA 世界杯。
 - 不承诺实时秒级比分刷新，首版目标为分钟级数据更新。
-- 首版不提供比赛详情页，比赛卡片仅展示基础信息。
+- 未开始比赛不提供详情页，仅展示基础信息和开赛订阅入口。
 
 ### 2.3 已确认产品决策
 
@@ -43,7 +43,8 @@
 - 时间展示：默认展示北京时间。
 - 小程序名称：苏式生活馆。
 - 小程序 AppID：`YOUR_MINIPROGRAM_APPID`。
-- 首版不做比赛详情页、收藏球队、开赛提醒。
+- 支持未开始比赛订阅开赛提醒；暂不做收藏球队。
+- 进行中和已结束比赛支持进入详情页查看技术统计、事件和阵容等数据。
 - 暂无品牌色、Logo 或固定视觉参考，设计可围绕足球和世界杯氛围自主延展。
 
 ## 3. 用户与场景
@@ -148,7 +149,7 @@
 - 小组或阶段。
 - 比赛地点，如 API 提供。
 
-首版不做比赛详情页，点击比赛可展开基础信息。
+进行中和已结束比赛可点击进入详情页。详情页展示比分进程、比赛信息、关键事件、技术统计和阵容信息；未开始比赛不进入详情页。
 
 ### 4.3 积分页
 
@@ -259,6 +260,7 @@
 核心接口规划：
 
 - 比赛列表：`GET /v4/competitions/WC/matches`
+- 单场比赛详情：`GET /v4/matches/{id}`
 - 积分榜：`GET /v4/competitions/WC/standings`
 - 射手榜：`GET /v4/competitions/WC/scorers`
 - 队伍信息：`GET /v4/competitions/WC/teams`，如套餐和赛事阶段支持
@@ -275,6 +277,7 @@
 建议同步频率：
 
 - matches：每 1 分钟同步一次，保障比分、状态和赛程变化的实时性。
+- match_details：每 1 分钟同步一次，只同步正在进行和近期已结束的比赛详情。
 - standings：每 5 分钟同步一次，更新小组积分。
 - scorers：每 5 分钟同步一次，更新射手榜。
 - teams：每天同步一次，更新球队名称、简称、队徽等低频变化信息。
@@ -368,6 +371,24 @@ football-data.org 状态需映射为小程序展示状态：
 - `last_updated`：API 数据更新时间。
 - `updated_at`：本地更新时间。
 
+#### `match_details`
+
+- `id`：内部 ID。
+- `api_match_id`：football-data.org match id，关联 `matches.api_match_id`。
+- `match_minute`：比赛当前分钟。
+- `injury_time_minute`：伤停补时分钟。
+- `attendance_total`：观众人数，如 API 提供。
+- `home_formation_text` / `away_formation_text`：双方阵型。
+- `home_coach_text` / `away_coach_text`：双方主教练。
+- `home_statistics_data` / `away_statistics_data`：双方技术统计 JSON 文本。
+- `home_lineup_data` / `away_lineup_data`：双方首发 JSON 文本。
+- `home_bench_data` / `away_bench_data`：双方替补 JSON 文本。
+- `goals_data`、`bookings_data`、`substitutions_data`、`penalties_data`：关键事件 JSON 文本。
+- `referees_data`：裁判信息 JSON 文本。
+- `raw_match_data`：单场详情接口原始 JSON 文本，便于后续兼容字段变化。
+- `detail_synced_at`：详情数据同步时间。
+- 字段命名避开 `group`、`status`、`minute` 等容易与数据库关键字或系统字段混淆的裸字段名。
+
 #### `standings`
 
 - `id`：内部 ID。
@@ -409,7 +430,7 @@ football-data.org 状态需映射为小程序展示状态：
 
 - `id`：内部 ID。
 - `job_name`：任务名称。
-- `resource`：同步资源，如 `matches`、`standings`、`scorers`。
+- `resource`：同步资源，如 `matches`、`match_details`、`standings`、`scorers`。
 - `started_at`：开始时间。
 - `finished_at`：结束时间。
 - `status`：`success` / `failed`。
@@ -444,7 +465,13 @@ football-data.org 状态需映射为小程序展示状态：
 - `group`
 - `status`
 
-### 8.3 积分榜
+### 8.3 比赛详情
+
+`GET /api/matches/:apiMatchId`
+
+仅用于进行中和已结束比赛，返回基础比赛信息和已同步的详情数据。
+
+### 8.4 积分榜
 
 `GET /api/standings`
 
@@ -452,13 +479,13 @@ football-data.org 状态需映射为小程序展示状态：
 
 - `group`
 
-### 8.4 淘汰赛
+### 8.5 淘汰赛
 
 `GET /api/knockouts`
 
 返回按阶段分组的淘汰赛比赛。
 
-### 8.5 射手榜
+### 8.6 射手榜
 
 `GET /api/scorers`
 
@@ -481,6 +508,8 @@ football-data.org 状态需映射为小程序展示状态：
 后端服务至少需要以下环境变量：
 
 - `FOOTBALL_DATA_API_TOKEN`：football-data.org API Token。
+- `MATCH_DETAILS_SYNC_CRON`：比赛详情同步频率。
+- `MATCH_DETAILS_SYNC_LIMIT`：每轮比赛详情最多同步场次。
 - `MYSQL_HOST`：MySQL 地址。
 - `MYSQL_PORT`：MySQL 端口。
 - `MYSQL_DATABASE`：数据库名。
@@ -627,7 +656,6 @@ football-data.org 状态需映射为小程序展示状态：
 ### v1.1 可选增强
 
 - 球队详情。
-- 比赛详情。
 - 分享海报。
 - 横向淘汰赛树。
 
@@ -641,8 +669,8 @@ football-data.org 状态需映射为小程序展示状态：
 4. 页面时间默认展示北京时间。
 5. 小程序名称为苏式生活馆。
 6. 小程序 AppID 为 `YOUR_MINIPROGRAM_APPID`。
-7. 首版不加入比赛详情页。
-8. 首版和 v1.1 暂不做收藏球队、开赛提醒。
+7. 进行中和已结束比赛加入比赛详情页。
+8. 暂不做收藏球队。
 9. 暂无品牌色、Logo 或固定视觉参考。
 
 ### 15.2 待验证风险

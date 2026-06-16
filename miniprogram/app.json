@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/home/home",
+    "pages/match-detail/match-detail",
     "pages/matches/matches",
     "pages/standings/standings",
     "pages/knockouts/knockouts",
@@ -43,4 +44,3 @@
   "style": "v2",
   "lazyCodeLoading": "requiredComponents"
 }
-

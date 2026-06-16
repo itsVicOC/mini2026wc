@@ -1,0 +1,99 @@
+<view class="page detail-page">
+  <view wx:if="{{loading}}" class="card empty">加载比赛详情中...</view>
+  <view wx:elif="{{error}}" class="card empty">{{error}}</view>
+
+  <block wx:elif="{{match}}">
+    <view class="scoreboard">
+      <view class="match-status-row">
+        <text class="status-pill">{{match.displayStatus}}</text>
+        <text wx:if="{{match.matchMinuteText}}" class="minute-pill">{{match.matchMinuteText}}</text>
+      </view>
+      <view class="score-main">
+        <view class="score-team">
+          <image wx:if="{{match.homeTeam.crest}}" class="detail-crest" src="{{match.homeTeam.crest}}" mode="aspectFit"></image>
+          <text>{{match.homeName}}</text>
+        </view>
+        <view class="score-number">{{match.scoreText}}</view>
+        <view class="score-team right">
+          <image wx:if="{{match.awayTeam.crest}}" class="detail-crest" src="{{match.awayTeam.crest}}" mode="aspectFit"></image>
+          <text>{{match.awayName}}</text>
+        </view>
+      </view>
+      <view class="score-subtitle">{{match.stageText}} {{match.groupText}}</view>
+    </view>
+
+    <view wx:if="{{!match.hasDetail}}" class="section card empty detail-empty">
+      详情数据正在同步，稍后下拉刷新查看。
+    </view>
+
+    <view class="section card panel">
+      <view class="panel-title">比赛信息</view>
+      <view wx:for="{{match.infoRows}}" wx:key="label" class="info-row">
+        <text class="info-label">{{item.label}}</text>
+        <text class="info-value">{{item.value}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{match.scoreRows.length}}" class="section card panel">
+      <view class="panel-title">比分进程</view>
+      <view wx:for="{{match.scoreRows}}" wx:key="label" class="score-breakdown-row">
+        <text>{{item.label}}</text>
+        <text>{{item.value}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{match.eventRows.length}}" class="section card panel">
+      <view class="panel-title">关键事件</view>
+      <view wx:for="{{match.eventRows}}" wx:key="eventId" class="event-row">
+        <view class="event-minute">{{item.minuteText}}</view>
+        <view class="{{item.className}}">{{item.typeText}}</view>
+        <view class="event-content">
+          <view class="event-title">{{item.title}}</view>
+          <view class="event-desc">{{item.teamText}} {{item.desc}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{match.statRows.length}}" class="section card panel">
+      <view class="panel-title">技术统计</view>
+      <view wx:for="{{match.statRows}}" wx:key="label" class="stat-row">
+        <text class="stat-value left">{{item.home}}</text>
+        <text class="stat-label">{{item.label}}</text>
+        <text class="stat-value right">{{item.away}}</text>
+      </view>
+    </view>
+
+    <view
+      wx:if="{{match.homeLineupRows.length || match.awayLineupRows.length || match.homeCoach || match.awayCoach || match.homeFormation || match.awayFormation}}"
+      class="section card panel"
+    >
+      <view class="panel-title">阵容信息</view>
+      <view class="lineup-meta">
+        <view>
+          <text wx:if="{{match.homeFormation}}">阵型 {{match.homeFormation}}</text>
+          <text wx:if="{{match.homeCoach}}"> 主帅 {{match.homeCoach}}</text>
+        </view>
+        <view class="right">
+          <text wx:if="{{match.awayFormation}}">阵型 {{match.awayFormation}}</text>
+          <text wx:if="{{match.awayCoach}}"> 主帅 {{match.awayCoach}}</text>
+        </view>
+      </view>
+      <view class="lineup-grid">
+        <view class="lineup-side">
+          <view class="lineup-team">{{match.homeName}}</view>
+          <view wx:for="{{match.homeLineupRows}}" wx:key="name" class="player-row">
+            <text class="player-number">{{item.number}}</text>
+            <text class="player-name">{{item.name}}</text>
+          </view>
+        </view>
+        <view class="lineup-side right">
+          <view class="lineup-team">{{match.awayName}}</view>
+          <view wx:for="{{match.awayLineupRows}}" wx:key="name" class="player-row">
+            <text class="player-name">{{item.name}}</text>
+            <text class="player-number">{{item.number}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

@@ -49,10 +49,20 @@
       <view class="section-meta">北京时间</view>
     </view>
     <view wx:if="{{!todayMatches.length}}" class="card empty">今天暂无比赛</view>
-    <view wx:for="{{todayMatches}}" wx:key="apiMatchId" class="match-card card">
+    <view
+      wx:for="{{todayMatches}}"
+      wx:key="apiMatchId"
+      class="match-card card {{item.canViewDetail ? 'tappable' : ''}}"
+      data-match-id="{{item.apiMatchId}}"
+      data-can-view-detail="{{item.canViewDetail}}"
+      bindtap="onMatchTap"
+    >
       <view class="match-meta">
-        <text>{{item.beijingTimeText}}</text>
-        <text class="status-pill">{{item.displayStatus}}</text>
+        <text class="meta-time">{{item.beijingTimeText}}</text>
+        <view class="meta-actions">
+          <text class="status-pill">{{item.displayStatus}}</text>
+          <text wx:if="{{item.canViewDetail}}" class="detail-chip">详情 ›</text>
+        </view>
       </view>
       <view class="match-row">
         <view class="team">
@@ -63,7 +73,7 @@
           wx:if="{{item.canSubscribe || item.subscribed}}"
           class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
           data-match-id="{{item.apiMatchId}}"
-          bindtap="onSubscribeTap"
+          catchtap="onSubscribeTap"
         >{{item.subscriptionText}}</view>
         <view wx:else class="score">{{item.scoreText}}</view>
         <view class="team right">
@@ -82,10 +92,21 @@
     <view wx:if="{{!weekMatches.length}}" class="card empty">未来一周暂无赛程</view>
     <view wx:for="{{weekMatches}}" wx:key="date" class="date-group">
       <view class="date-title">{{item.date}}</view>
-      <view wx:for="{{item.matches}}" wx:for-item="match" wx:key="apiMatchId" class="match-card card compact">
+      <view
+        wx:for="{{item.matches}}"
+        wx:for-item="match"
+        wx:key="apiMatchId"
+        class="match-card card compact {{match.canViewDetail ? 'tappable' : ''}}"
+        data-match-id="{{match.apiMatchId}}"
+        data-can-view-detail="{{match.canViewDetail}}"
+        bindtap="onMatchTap"
+      >
         <view class="match-meta">
-          <text>{{match.beijingTimeText}}</text>
-          <text class="status-pill">{{match.displayStatus}}</text>
+          <text class="meta-time">{{match.beijingTimeText}}</text>
+          <view class="meta-actions">
+            <text class="status-pill">{{match.displayStatus}}</text>
+            <text wx:if="{{match.canViewDetail}}" class="detail-chip">详情 ›</text>
+          </view>
         </view>
         <view class="match-row">
           <view class="team">
@@ -96,7 +117,7 @@
             wx:if="{{match.canSubscribe || match.subscribed}}"
             class="subscribe-button {{match.subscribed ? 'subscribed' : ''}} {{match.subscriptionLoading ? 'loading' : ''}}"
             data-match-id="{{match.apiMatchId}}"
-            bindtap="onSubscribeTap"
+            catchtap="onSubscribeTap"
           >{{match.subscriptionText}}</view>
           <view wx:else class="score">{{match.scoreText}}</view>
           <view class="team right">

@@ -1,7 +1,14 @@
 import cron from 'node-cron';
 import { env } from '../config/env.js';
 import { logger } from '../utils/logger.js';
-import { syncAll, syncMatches, syncScorers, syncStandings, syncTeams } from '../services/syncService.js';
+import {
+  syncAll,
+  syncMatchDetails,
+  syncMatches,
+  syncScorers,
+  syncStandings,
+  syncTeams
+} from '../services/syncService.js';
 import { sendDueMatchSubscriptions } from '../services/subscriptionService.js';
 
 const runningJobs = new Set<string>();
@@ -12,6 +19,10 @@ export function startScheduler() {
   } else {
     cron.schedule(env.MATCHES_SYNC_CRON, async () => {
       await runOnce('cron-matches', () => syncMatches('cron-matches'));
+    });
+
+    cron.schedule(env.MATCH_DETAILS_SYNC_CRON, async () => {
+      await runOnce('cron-match-details', () => syncMatchDetails('cron-match-details'));
     });
 
     cron.schedule(env.STANDINGS_SYNC_CRON, async () => {
@@ -35,6 +46,7 @@ export function startScheduler() {
     logger.info(
       {
         matches: env.MATCHES_SYNC_CRON,
+        matchDetails: env.MATCH_DETAILS_SYNC_CRON,
         standings: env.STANDINGS_SYNC_CRON,
         scorers: env.SCORERS_SYNC_CRON,
         teams: env.TEAMS_SYNC_CRON,

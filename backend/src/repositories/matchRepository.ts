@@ -1,8 +1,8 @@
 import { pool } from '../db/pool.js';
-import { normalizeGroupName, type MatchRecord } from '../services/normalizers.js';
+import { normalizeGroupName, type MatchDetailRecord, type MatchRecord } from '../services/normalizers.js';
 import { appConfig } from '../config/app.js';
 import { isFinished, isLive, isNotStartedOrPending } from '../utils/status.js';
-import { toBeijingTimeText } from '../utils/time.js';
+import { parseUtcDateTime, toBeijingTimeText, toMysqlDateTime } from '../utils/time.js';
 
 export async function upsertMatches(matches: MatchRecord[]) {
   if (matches.length === 0) {
@@ -63,6 +63,61 @@ export async function upsertMatches(matches: MatchRecord[]) {
     );
     count += 1;
   }
+  return count;
+}
+
+export async function upsertMatchDetails(details: MatchDetailRecord[]) {
+  if (details.length === 0) {
+    return 0;
+  }
+
+  let count = 0;
+  for (const detail of details) {
+    await pool.execute(
+      `
+        INSERT INTO match_details (
+          api_match_id, match_minute, injury_time_minute, attendance_total,
+          home_formation_text, away_formation_text, home_coach_text, away_coach_text,
+          home_statistics_data, away_statistics_data,
+          home_lineup_data, away_lineup_data, home_bench_data, away_bench_data,
+          goals_data, bookings_data, substitutions_data, penalties_data, referees_data,
+          raw_match_data, detail_synced_at
+        )
+        VALUES (
+          :api_match_id, :match_minute, :injury_time_minute, :attendance_total,
+          :home_formation_text, :away_formation_text, :home_coach_text, :away_coach_text,
+          :home_statistics_data, :away_statistics_data,
+          :home_lineup_data, :away_lineup_data, :home_bench_data, :away_bench_data,
+          :goals_data, :bookings_data, :substitutions_data, :penalties_data, :referees_data,
+          :raw_match_data, :detail_synced_at
+        )
+        ON DUPLICATE KEY UPDATE
+          match_minute = VALUES(match_minute),
+          injury_time_minute = VALUES(injury_time_minute),
+          attendance_total = VALUES(attendance_total),
+          home_formation_text = VALUES(home_formation_text),
+          away_formation_text = VALUES(away_formation_text),
+          home_coach_text = VALUES(home_coach_text),
+          away_coach_text = VALUES(away_coach_text),
+          home_statistics_data = VALUES(home_statistics_data),
+          away_statistics_data = VALUES(away_statistics_data),
+          home_lineup_data = VALUES(home_lineup_data),
+          away_lineup_data = VALUES(away_lineup_data),
+          home_bench_data = VALUES(home_bench_data),
+          away_bench_data = VALUES(away_bench_data),
+          goals_data = VALUES(goals_data),
+          bookings_data = VALUES(bookings_data),
+          substitutions_data = VALUES(substitutions_data),
+          penalties_data = VALUES(penalties_data),
+          referees_data = VALUES(referees_data),
+          raw_match_data = VALUES(raw_match_data),
+          detail_synced_at = VALUES(detail_synced_at)
+      `,
+      detail
+    );
+    count += 1;
+  }
+
   return count;
 }
 
@@ -202,6 +257,119 @@ export async function getMatches(params: {
   return (rows as DbMatch[]).map(formatMatch);
 }
 
+export async function getMatchDetailSyncCandidates(params: {
+  limit: number;
+  finishedLookbackHours: number;
+  finishedRefreshMinutes: number;
+}) {
+  const now = new Date();
+  const candidateLimit = Math.max(1, Math.min(50, Math.floor(params.limit * 4)));
+  const finishedSince = toMysqlDateTime(
+    new Date(now.getTime() - params.finishedLookbackHours * 60 * 60 * 1000)
+  );
+
+  const [rows] = await pool.execute(
+    `
+      SELECT
+        m.api_match_id,
+        m.\`status\`,
+        m.\`utc_date\`,
+        d.detail_synced_at
+      FROM matches m
+      LEFT JOIN match_details d ON d.api_match_id = m.api_match_id
+      WHERE m.competition_code = :competitionCode
+        AND m.season = :season
+        AND (
+          m.\`status\` IN ('IN_PLAY', 'LIVE', 'PAUSED')
+          OR (m.\`status\` = 'FINISHED' AND m.\`utc_date\` >= :finishedSince)
+        )
+      ORDER BY
+        CASE WHEN m.\`status\` IN ('IN_PLAY', 'LIVE', 'PAUSED') THEN 0 ELSE 1 END ASC,
+        COALESCE(d.detail_synced_at, '1970-01-01 00:00:00') ASC,
+        m.\`utc_date\` ASC,
+        m.api_match_id ASC
+      LIMIT ${candidateLimit}
+    `,
+    {
+      competitionCode: appConfig.competitionCode,
+      season: appConfig.season,
+      finishedSince
+    }
+  );
+
+  const liveRefreshMs = 50 * 1000;
+  const finishedRefreshMs = params.finishedRefreshMinutes * 60 * 1000;
+
+  return (rows as DbMatchDetailSyncCandidate[])
+    .filter((row) => {
+      if (!row.detail_synced_at) {
+        return true;
+      }
+      const lastSyncedAt = parseUtcDateTime(row.detail_synced_at);
+      const elapsedMs = now.getTime() - lastSyncedAt.getTime();
+      if (Number.isNaN(elapsedMs)) {
+        return true;
+      }
+      return isLive(row.status)
+        ? elapsedMs >= liveRefreshMs
+        : elapsedMs >= finishedRefreshMs;
+    })
+    .slice(0, params.limit)
+    .map((row) => ({
+      apiMatchId: Number(row.api_match_id),
+      status: row.status,
+      utcDate: row.utc_date,
+      detailSyncedAt: row.detail_synced_at
+    }));
+}
+
+export async function getMatchDetailByApiId(apiMatchId: number) {
+  const [rows] = await pool.execute(
+    `
+      SELECT
+        m.*,
+        d.id AS detail_id,
+        d.match_minute,
+        d.injury_time_minute,
+        d.attendance_total,
+        d.home_formation_text,
+        d.away_formation_text,
+        d.home_coach_text,
+        d.away_coach_text,
+        d.home_statistics_data,
+        d.away_statistics_data,
+        d.home_lineup_data,
+        d.away_lineup_data,
+        d.home_bench_data,
+        d.away_bench_data,
+        d.goals_data,
+        d.bookings_data,
+        d.substitutions_data,
+        d.penalties_data,
+        d.referees_data,
+        d.detail_synced_at
+      FROM matches m
+      LEFT JOIN match_details d ON d.api_match_id = m.api_match_id
+      WHERE m.competition_code = :competitionCode
+        AND m.season = :season
+        AND m.api_match_id = :apiMatchId
+      LIMIT 1
+    `,
+    {
+      competitionCode: appConfig.competitionCode,
+      season: appConfig.season,
+      apiMatchId
+    }
+  );
+
+  const row = (rows as DbMatchDetail[])[0];
+  if (!row) {
+    return null;
+  }
+
+  return formatMatchDetail(row);
+}
+
 function normalizeFilter(value?: string) {
   if (!value || value === 'undefined' || value === 'null') {
     return undefined;
@@ -239,10 +407,45 @@ type DbMatch = {
   away_team_crest: string | null;
   home_score: number | null;
   away_score: number | null;
+  half_time_home_score: number | null;
+  half_time_away_score: number | null;
+  extra_time_home_score: number | null;
+  extra_time_away_score: number | null;
   penalty_home_score: number | null;
   penalty_away_score: number | null;
   winner: string | null;
   venue: string | null;
+  last_updated: string | null;
+};
+
+type DbMatchDetailSyncCandidate = {
+  api_match_id: number;
+  status: string;
+  utc_date: string;
+  detail_synced_at: string | null;
+};
+
+type DbMatchDetail = DbMatch & {
+  detail_id: number | null;
+  match_minute: number | null;
+  injury_time_minute: number | null;
+  attendance_total: number | null;
+  home_formation_text: string | null;
+  away_formation_text: string | null;
+  home_coach_text: string | null;
+  away_coach_text: string | null;
+  home_statistics_data: string | null;
+  away_statistics_data: string | null;
+  home_lineup_data: string | null;
+  away_lineup_data: string | null;
+  home_bench_data: string | null;
+  away_bench_data: string | null;
+  goals_data: string | null;
+  bookings_data: string | null;
+  substitutions_data: string | null;
+  penalties_data: string | null;
+  referees_data: string | null;
+  detail_synced_at: string | null;
 };
 
 function formatMatch(match: DbMatch) {
@@ -270,10 +473,63 @@ function formatMatch(match: DbMatch) {
     score: {
       home: match.home_score,
       away: match.away_score,
+      halfTimeHome: match.half_time_home_score,
+      halfTimeAway: match.half_time_away_score,
+      extraTimeHome: match.extra_time_home_score,
+      extraTimeAway: match.extra_time_away_score,
       penaltyHome: match.penalty_home_score,
       penaltyAway: match.penalty_away_score
     },
     winner: match.winner,
-    venue: match.venue
+    venue: match.venue,
+    lastUpdated: match.last_updated,
+    canViewDetail: isLive(match.status) || isFinished(match.status)
   };
+}
+
+function formatMatchDetail(row: DbMatchDetail) {
+  return {
+    ...formatMatch(row),
+    detail: row.detail_id
+      ? {
+          matchMinute: row.match_minute,
+          injuryTimeMinute: row.injury_time_minute,
+          attendanceTotal: row.attendance_total,
+          homeFormation: row.home_formation_text,
+          awayFormation: row.away_formation_text,
+          homeCoach: row.home_coach_text,
+          awayCoach: row.away_coach_text,
+          statistics: {
+            home: parseJsonText(row.home_statistics_data),
+            away: parseJsonText(row.away_statistics_data)
+          },
+          lineups: {
+            home: parseJsonText(row.home_lineup_data),
+            away: parseJsonText(row.away_lineup_data),
+            homeBench: parseJsonText(row.home_bench_data),
+            awayBench: parseJsonText(row.away_bench_data)
+          },
+          events: {
+            goals: parseJsonText(row.goals_data) ?? [],
+            bookings: parseJsonText(row.bookings_data) ?? [],
+            substitutions: parseJsonText(row.substitutions_data) ?? [],
+            penalties: parseJsonText(row.penalties_data) ?? []
+          },
+          referees: parseJsonText(row.referees_data) ?? [],
+          detailSyncedAt: row.detail_synced_at
+        }
+      : null
+  };
+}
+
+function parseJsonText(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    return null;
+  }
 }

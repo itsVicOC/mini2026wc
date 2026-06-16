@@ -2,6 +2,7 @@ import { env } from '../config/env.js';
 
 type RequestOptions = {
   searchParams?: Record<string, string | number | undefined>;
+  headers?: Record<string, string>;
 };
 
 export class FootballDataClient {
@@ -58,6 +59,10 @@ export class FootballDataClient {
     );
   }
 
+  async getMatch(matchId: number) {
+    return this.request<FootballDataMatchDetail>(`/matches/${matchId}`);
+  }
+
   private async request<T>(path: string, options: RequestOptions = {}) {
     if (!this.token) {
       throw new Error('FOOTBALL_DATA_API_TOKEN is not configured');
@@ -72,7 +77,8 @@ export class FootballDataClient {
 
     const response = await fetch(url, {
       headers: {
-        'X-Auth-Token': this.token
+        'X-Auth-Token': this.token,
+        ...(options.headers ?? {})
       }
     });
 
@@ -91,6 +97,15 @@ export type FootballDataTeam = {
   shortName?: string;
   tla?: string;
   crest?: string;
+  coach?: {
+    id?: number;
+    name?: string;
+    nationality?: string;
+  };
+  formation?: string;
+  lineup?: unknown[];
+  bench?: unknown[];
+  statistics?: unknown;
 };
 
 export type FootballDataMatch = {
@@ -123,6 +138,17 @@ export type FootballDataMatch = {
     };
   };
   venue?: string;
+};
+
+export type FootballDataMatchDetail = FootballDataMatch & {
+  minute?: number | null;
+  injuryTime?: number | null;
+  attendance?: number | null;
+  goals?: unknown[];
+  penalties?: unknown[];
+  bookings?: unknown[];
+  substitutions?: unknown[];
+  referees?: unknown[];
 };
 
 export type FootballDataMatchesResponse = {

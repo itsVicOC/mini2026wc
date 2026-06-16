@@ -1,5 +1,5 @@
 const api = require('../../services/api');
-const { groupLabel, scoreText, stageLabel, teamName } = require('../../utils/format');
+const { canViewMatchDetail, groupLabel, scoreText, stageLabel, teamName } = require('../../utils/format');
 const {
   canSubscribeMatch,
   decorateSubscriptionState,
@@ -62,7 +62,8 @@ Page({
           homeName: teamName(match.homeTeam),
           awayName: teamName(match.awayTeam),
           stageText: stageLabel(match.stage),
-          groupText: match.group ? groupLabel(match.group) : ''
+          groupText: match.group ? groupLabel(match.group) : '',
+          canViewDetail: canViewMatchDetail(match)
         })),
         loading: false
       });
@@ -138,6 +139,17 @@ Page({
         icon: 'none'
       });
     }
+  },
+
+  onMatchTap(event) {
+    const apiMatchId = Number(event.currentTarget.dataset.matchId);
+    const canViewDetail = event.currentTarget.dataset.canViewDetail;
+    if (!apiMatchId || (canViewDetail !== true && canViewDetail !== 'true')) {
+      return;
+    }
+    wx.navigateTo({
+      url: `/pages/match-detail/match-detail?apiMatchId=${apiMatchId}`
+    });
   },
 
   async loadSubscriptionStatus() {

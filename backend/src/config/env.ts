@@ -40,6 +40,10 @@ const envSchema = z.object({
   SCORERS_SYNC_CRON: z.string().default('*/5 * * * *'),
   TEAMS_SYNC_CRON: z.string().default('0 3 * * *'),
   FULL_SYNC_CRON: z.string().default('0 4 * * *'),
+  MATCH_DETAILS_SYNC_CRON: z.string().default('* * * * *'),
+  MATCH_DETAILS_SYNC_LIMIT: z.coerce.number().int().positive().default(6),
+  MATCH_DETAIL_FINISHED_LOOKBACK_HOURS: z.coerce.number().int().positive().default(5),
+  MATCH_DETAIL_FINISHED_SYNC_MINUTES: z.coerce.number().int().positive().default(5),
   CACHE_TTL_SECONDS: z.coerce.number().int().positive().default(30)
 });
 

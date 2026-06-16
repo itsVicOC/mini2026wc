@@ -110,10 +110,10 @@ page {
 }
 
 .score {
+  width: 100%;
   min-width: 112rpx;
   text-align: center;
   font-size: 34rpx;
   font-weight: 900;
   color: #102718;
 }
-

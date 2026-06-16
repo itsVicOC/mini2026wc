@@ -121,6 +121,7 @@ USE mini2026wc;
 - `scorers`
 - `sync_logs`
 - `match_subscriptions`
+- `match_details`
 
 ### 方法 B：命令行执行
 
@@ -234,6 +235,10 @@ backend/dist/
 | `ENABLE_SYNC_CRON` | `true` | 是否开启定时同步。生产建议填 `true`。 |
 | `ENABLE_FULL_SYNC_CRON` | `false` | 是否额外开启全量同步。通常保持 `false`，避免和分资源同步重复。 |
 | `MATCHES_SYNC_CRON` | `"* * * * *"` | 比赛数据同步频率，默认每分钟一次。 |
+| `MATCH_DETAILS_SYNC_CRON` | `"* * * * *"` | 单场比赛详情同步频率，默认每分钟一次。 |
+| `MATCH_DETAILS_SYNC_LIMIT` | `6` | 每轮最多同步多少场单场详情，避免超过 football-data.org 免费等级频率限制。 |
+| `MATCH_DETAIL_FINISHED_LOOKBACK_HOURS` | `5` | 已结束比赛从开赛时间往后保留多久作为详情同步候选。 |
+| `MATCH_DETAIL_FINISHED_SYNC_MINUTES` | `5` | 已结束比赛详情的最小重复同步间隔。 |
 | `STANDINGS_SYNC_CRON` | `"*/5 * * * *"` | 积分榜同步频率，默认每 5 分钟一次。 |
 | `SCORERS_SYNC_CRON` | `"*/5 * * * *"` | 射手榜同步频率，默认每 5 分钟一次。 |
 | `TEAMS_SYNC_CRON` | `"0 3 * * *"` | 球队数据同步频率，默认每天凌晨 3 点一次。 |
@@ -273,6 +278,10 @@ SUBSCRIPTION_NOTIFY_CRON="* * * * *"
 ENABLE_SYNC_CRON=true
 ENABLE_FULL_SYNC_CRON=false
 MATCHES_SYNC_CRON="* * * * *"
+MATCH_DETAILS_SYNC_CRON="* * * * *"
+MATCH_DETAILS_SYNC_LIMIT=6
+MATCH_DETAIL_FINISHED_LOOKBACK_HOURS=5
+MATCH_DETAIL_FINISHED_SYNC_MINUTES=5
 STANDINGS_SYNC_CRON="*/5 * * * *"
 SCORERS_SYNC_CRON="*/5 * * * *"
 TEAMS_SYNC_CRON="0 3 * * *"
@@ -365,9 +374,11 @@ SUBSCRIPTION_NOTIFY_CRON="* * * * *"
 
 [backend/database/fixes/add_match_subscriptions.sql](backend/database/fixes/add_match_subscriptions.sql)
 
+[backend/database/fixes/add_match_details.sql](backend/database/fixes/add_match_details.sql)
+
 执行方式和初始化表一样，在 1Panel SQL 窗口复制执行即可。
 
-如果你是全新部署，直接执行最新版 [schema.sql](backend/database/schema.sql) 就已经包含这张表。
+如果你是全新部署，直接执行最新版 [schema.sql](backend/database/schema.sql) 就已经包含这些表。
 
 ## 7. 在 1Panel 创建后端应用
 
@@ -493,12 +504,26 @@ curl -X POST https://api.example.com/api/admin/sync \
       "resource": "matches",
       "status": "success",
       "upsertCount": 104
+    },
+    {
+      "resource": "match_details",
+      "status": "success",
+      "candidateCount": 1,
+      "requestCount": 1,
+      "upsertCount": 1
     }
   ]
 }
 ```
 
 如果某个资源返回 `failed`，先不要慌。免费等级可能不支持某些接口，尤其是 `scorers` 或 `teams`。失败原因会记录在 `sync_logs.error_message`。
+
+如果只想手动同步正在进行或近期已结束比赛的详情，可以调用：
+
+```bash
+curl -X POST https://api.example.com/api/admin/sync/match-details \
+  -H "X-Admin-Token: 你的 ADMIN_SYNC_TOKEN"
+```
 
 ## 10. 检查数据是否同步成功
 

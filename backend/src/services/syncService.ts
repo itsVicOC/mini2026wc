@@ -2,11 +2,17 @@ import { FootballDataClient } from './footballDataClient.js';
 import {
   UNKNOWN_GROUP_NAME,
   normalizeMatch,
+  normalizeMatchDetail,
   normalizeScorers,
   normalizeStandings,
   normalizeTeam
 } from './normalizers.js';
-import { getTeamGroupMapFromMatches, upsertMatches } from '../repositories/matchRepository.js';
+import {
+  getMatchDetailSyncCandidates,
+  getTeamGroupMapFromMatches,
+  upsertMatchDetails,
+  upsertMatches
+} from '../repositories/matchRepository.js';
 import { upsertScorers } from '../repositories/scorerRepository.js';
 import { clearStandings, upsertStandings } from '../repositories/standingRepository.js';
 import { upsertTeams } from '../repositories/teamRepository.js';
@@ -15,6 +21,7 @@ import { clearCache } from '../utils/cache.js';
 import { logger } from '../utils/logger.js';
 import { pool } from '../db/pool.js';
 import { appConfig } from '../config/app.js';
+import { env } from '../config/env.js';
 import { toMysqlDateTime } from '../utils/time.js';
 
 const client = new FootballDataClient();
@@ -31,6 +38,7 @@ export async function syncAll(jobName = 'manual') {
   const results = [];
   results.push(await syncTeams(jobName));
   results.push(await syncMatches(jobName));
+  results.push(await syncMatchDetails(jobName));
   results.push(await syncStandings(jobName));
   results.push(await syncScorers(jobName));
   clearCache();
@@ -90,6 +98,71 @@ export async function syncMatches(jobName: string) {
     return { resource: 'matches', status: 'success', upsertCount };
   } catch (error) {
     return handleSyncError(logId, 'matches', error);
+  }
+}
+
+export async function syncMatchDetails(jobName: string) {
+  const logId = await createSyncLog(jobName, 'match_details');
+  let requestCount = 0;
+  let upsertCount = 0;
+
+  try {
+    const candidates = await getMatchDetailSyncCandidates({
+      limit: env.MATCH_DETAILS_SYNC_LIMIT,
+      finishedLookbackHours: env.MATCH_DETAIL_FINISHED_LOOKBACK_HOURS,
+      finishedRefreshMinutes: env.MATCH_DETAIL_FINISHED_SYNC_MINUTES
+    });
+    const errors: string[] = [];
+
+    for (const candidate of candidates) {
+      try {
+        const detail = await client.getMatch(candidate.apiMatchId);
+        requestCount += 1;
+        await upsertMatches([normalizeMatch(detail)]);
+        await upsertMatchDetails([normalizeMatchDetail(detail)]);
+        upsertCount += 1;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errors.push(`${candidate.apiMatchId}: ${errorMessage}`);
+        logger.warn(
+          { jobName, apiMatchId: candidate.apiMatchId, error: errorMessage },
+          'match detail sync failed'
+        );
+      }
+    }
+
+    const status = errors.length > 0 ? 'failed' : 'success';
+    await finishSyncLog(logId, {
+      status,
+      requestCount,
+      upsertCount,
+      errorMessage: errors.length > 0 ? errors.join('; ').slice(0, 2000) : undefined
+    });
+    clearCache();
+
+    return {
+      resource: 'match_details',
+      status,
+      candidateCount: candidates.length,
+      requestCount,
+      upsertCount,
+      errorMessage: errors.length > 0 ? errors.join('; ') : undefined
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    await finishSyncLog(logId, {
+      status: 'failed',
+      requestCount,
+      upsertCount,
+      errorMessage
+    });
+    return {
+      resource: 'match_details',
+      status: 'failed',
+      requestCount,
+      upsertCount,
+      errorMessage
+    };
   }
 }
 

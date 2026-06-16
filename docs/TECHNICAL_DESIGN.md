@@ -24,7 +24,7 @@ flowchart LR
 
 - 小程序只请求自有后端，不直接请求 football-data.org。
 - football-data.org Token 只保存在服务端环境变量中。
-- 首页、赛程、积分、淘汰赛、射手榜均从 MySQL 读取。
+- 首页、赛程、比赛详情、积分、淘汰赛、射手榜均从 MySQL 读取。
 
 ### 2.2 数据同步原则
 
@@ -75,21 +75,29 @@ backend/
 - `group`：小组。
 - `status`：比赛状态。
 
-### 4.3 积分榜
+### 4.3 比赛详情
+
+`GET /api/matches/:apiMatchId`
+
+用途：展示正在进行或已结束比赛的比分进程、技术统计、事件和阵容。接口只读取 MySQL，不在用户点击时直连 football-data.org。
+
+### 4.4 积分榜
 
 `GET /api/standings?group=GROUP_A`
 
-### 4.4 淘汰赛
+### 4.5 淘汰赛
 
 `GET /api/knockouts`
 
-### 4.5 射手榜
+### 4.6 射手榜
 
 `GET /api/scorers?limit=20`
 
-### 4.6 手动同步
+### 4.7 手动同步
 
 `POST /api/admin/sync`
+
+`POST /api/admin/sync/match-details`
 
 用途：部署初期或排查问题时手动触发同步。
 
@@ -105,6 +113,7 @@ backend/
 - `competitions`
 - `teams`
 - `matches`
+- `match_details`
 - `standings`
 - `scorers`
 - `sync_logs`
@@ -116,6 +125,7 @@ backend/
 默认策略：
 
 - matches：每 1 分钟同步一次，用于保障比分、状态和赛程新鲜度。
+- match_details：每 1 分钟同步一次，只同步正在进行和近期已结束的比赛详情。
 - standings：每 5 分钟同步一次，用于更新小组积分。
 - scorers：每 5 分钟同步一次，用于更新射手榜。
 - teams：每天同步一次，用于补充球队名称、简称、队徽等低频变化数据。
@@ -123,9 +133,9 @@ backend/
 
 额度估算：
 
-- 常规分钟：matches 1 次请求。
-- 每 5 分钟整点：matches + standings + scorers，共 3 次请求。
-- 每天 teams 触发分钟：最多 4 次请求。
+- 常规分钟：matches 1 次请求，另按候选比赛最多同步 6 场 match_details。
+- 每 5 分钟整点：matches + standings + scorers + match_details。
+- 每天 teams 触发分钟：在上述基础上额外增加 1 次 teams 请求。
 - 在免费额度 10 次/分钟下，默认策略留有余量。
 
 ## 7. 缓存策略

@@ -36,9 +36,14 @@ function stageLabel(stage) {
   return map[normalized] || String(stage);
 }
 
+function canViewMatchDetail(match) {
+  return Boolean(match && ['IN_PLAY', 'LIVE', 'PAUSED', 'FINISHED'].indexOf(match.status) >= 0);
+}
+
 module.exports = {
   scoreText,
   teamName,
   groupLabel,
-  stageLabel
+  stageLabel,
+  canViewMatchDetail
 };

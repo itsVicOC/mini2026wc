@@ -1,6 +1,7 @@
 import { appConfig } from '../config/app.js';
 import type {
   FootballDataMatch,
+  FootballDataMatchDetail,
   FootballDataScorer,
   FootballDataStanding,
   FootballDataTeam
@@ -45,6 +46,30 @@ export type MatchRecord = {
   winner: string | null;
   venue: string | null;
   last_updated: string | null;
+};
+
+export type MatchDetailRecord = {
+  api_match_id: number;
+  match_minute: number | null;
+  injury_time_minute: number | null;
+  attendance_total: number | null;
+  home_formation_text: string | null;
+  away_formation_text: string | null;
+  home_coach_text: string | null;
+  away_coach_text: string | null;
+  home_statistics_data: string | null;
+  away_statistics_data: string | null;
+  home_lineup_data: string | null;
+  away_lineup_data: string | null;
+  home_bench_data: string | null;
+  away_bench_data: string | null;
+  goals_data: string | null;
+  bookings_data: string | null;
+  substitutions_data: string | null;
+  penalties_data: string | null;
+  referees_data: string | null;
+  raw_match_data: string | null;
+  detail_synced_at: string;
 };
 
 export type StandingRecord = {
@@ -134,6 +159,40 @@ export function normalizeMatch(match: FootballDataMatch): MatchRecord {
   };
 }
 
+export function normalizeMatchDetail(
+  match: FootballDataMatchDetail,
+  syncedAt = new Date()
+): MatchDetailRecord {
+  const detailSyncedAt = toMysqlDateTime(syncedAt);
+  if (!detailSyncedAt) {
+    throw new Error(`Invalid detail synced time for match ${match.id}`);
+  }
+
+  return {
+    api_match_id: match.id,
+    match_minute: match.minute ?? null,
+    injury_time_minute: match.injuryTime ?? null,
+    attendance_total: match.attendance ?? null,
+    home_formation_text: match.homeTeam?.formation ?? null,
+    away_formation_text: match.awayTeam?.formation ?? null,
+    home_coach_text: match.homeTeam?.coach?.name ?? null,
+    away_coach_text: match.awayTeam?.coach?.name ?? null,
+    home_statistics_data: toJsonText(match.homeTeam?.statistics),
+    away_statistics_data: toJsonText(match.awayTeam?.statistics),
+    home_lineup_data: toJsonText(match.homeTeam?.lineup),
+    away_lineup_data: toJsonText(match.awayTeam?.lineup),
+    home_bench_data: toJsonText(match.homeTeam?.bench),
+    away_bench_data: toJsonText(match.awayTeam?.bench),
+    goals_data: toJsonText(match.goals),
+    bookings_data: toJsonText(match.bookings),
+    substitutions_data: toJsonText(match.substitutions),
+    penalties_data: toJsonText(match.penalties),
+    referees_data: toJsonText(match.referees),
+    raw_match_data: toJsonText(match),
+    detail_synced_at: detailSyncedAt
+  };
+}
+
 export function normalizeStandings(standings: FootballDataStanding[]) {
   const rows: StandingRecord[] = [];
   const teams: TeamRecord[] = [];
@@ -216,4 +275,11 @@ export function normalizeScorers(scorers: FootballDataScorer[]) {
       penalties: scorer.penalties ?? null,
       played_matches: scorer.playedMatches ?? null
     }));
+}
+
+function toJsonText(value: unknown) {
+  if (value === undefined) {
+    return null;
+  }
+  return JSON.stringify(value);
 }

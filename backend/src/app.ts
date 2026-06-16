@@ -30,7 +30,7 @@ export function createApp() {
       success: true,
       data: {
         status: 'ok',
-        revision: 'subscription-select-star-20260616',
+        revision: 'match-detail-20260616',
         serverTimeUtc: now.toISOString(),
         serverTimeBeijing: toBeijingDateTimeText(now)
       }

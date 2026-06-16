@@ -12,6 +12,10 @@ function getMatches(params = {}) {
   });
 }
 
+function getMatchDetail(apiMatchId) {
+  return request(`/api/matches/${apiMatchId}`);
+}
+
 function getStandings(group) {
   return request('/api/standings', {
     data: group ? { group } : {}
@@ -45,6 +49,7 @@ function getMatchSubscriptionStatus(data) {
 module.exports = {
   getHome,
   getMatches,
+  getMatchDetail,
   getStandings,
   getKnockouts,
   getScorers,

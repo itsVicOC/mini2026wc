@@ -1,0 +1,273 @@
+.detail-page {
+  padding-bottom: 64rpx;
+}
+
+.scoreboard {
+  position: relative;
+  overflow: hidden;
+  padding: 30rpx 26rpx;
+  border-radius: 18rpx;
+  color: #fff;
+  background:
+    linear-gradient(135deg, rgba(8, 66, 35, 0.98), rgba(12, 122, 60, 0.94)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0 2rpx, transparent 2rpx 86rpx);
+}
+
+.match-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  margin-bottom: 26rpx;
+}
+
+.scoreboard .status-pill {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.minute-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40rpx;
+  padding: 0 16rpx;
+  border-radius: 999rpx;
+  background: #d7b15c;
+  color: #172318;
+  font-size: 22rpx;
+  font-weight: 900;
+}
+
+.score-main {
+  display: grid;
+  grid-template-columns: 1fr 150rpx 1fr;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.score-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  min-width: 0;
+  font-size: 28rpx;
+  font-weight: 800;
+  text-align: center;
+}
+
+.score-team text {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-crest {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.score-number {
+  text-align: center;
+  font-size: 46rpx;
+  font-weight: 900;
+  color: #fff;
+}
+
+.score-subtitle {
+  margin-top: 24rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.detail-empty {
+  color: #6d7a72;
+}
+
+.panel {
+  padding: 24rpx;
+}
+
+.panel-title {
+  margin-bottom: 18rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #143a22;
+}
+
+.info-row,
+.score-breakdown-row,
+.stat-row {
+  display: grid;
+  grid-template-columns: 170rpx 1fr;
+  gap: 16rpx;
+  padding: 16rpx 0;
+  border-top: 1rpx solid rgba(20, 80, 43, 0.08);
+  font-size: 26rpx;
+}
+
+.info-row:first-of-type,
+.score-breakdown-row:first-of-type,
+.stat-row:first-of-type {
+  border-top: 0;
+}
+
+.info-label,
+.stat-label {
+  color: #77847c;
+}
+
+.info-value,
+.score-breakdown-row text:last-child {
+  color: #15251a;
+  font-weight: 700;
+  text-align: right;
+}
+
+.score-breakdown-row {
+  grid-template-columns: 1fr 1fr;
+}
+
+.event-row {
+  display: grid;
+  grid-template-columns: 64rpx 76rpx 1fr;
+  gap: 14rpx;
+  align-items: center;
+  padding: 18rpx 0;
+  border-top: 1rpx solid rgba(20, 80, 43, 0.08);
+}
+
+.event-row:first-of-type {
+  border-top: 0;
+}
+
+.event-minute {
+  color: #0b7a3b;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+
+.event-type {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42rpx;
+  border-radius: 8rpx;
+  font-size: 21rpx;
+  font-weight: 900;
+}
+
+.event-type.goal {
+  background: #eaf5ee;
+  color: #0b7a3b;
+}
+
+.event-type.card {
+  background: #fff3c8;
+  color: #916610;
+}
+
+.event-type.sub {
+  background: #eaf0f8;
+  color: #2e5f95;
+}
+
+.event-type.penalty {
+  background: #f9e9e6;
+  color: #bd3c2f;
+}
+
+.event-title {
+  font-size: 26rpx;
+  font-weight: 800;
+  color: #15251a;
+}
+
+.event-desc {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: #7a867f;
+}
+
+.stat-row {
+  grid-template-columns: 1fr 160rpx 1fr;
+  align-items: center;
+}
+
+.stat-value {
+  font-size: 26rpx;
+  font-weight: 800;
+  color: #15251a;
+}
+
+.stat-value.left {
+  text-align: left;
+}
+
+.stat-value.right {
+  text-align: right;
+}
+
+.stat-label {
+  text-align: center;
+  font-size: 24rpx;
+}
+
+.lineup-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+  font-size: 22rpx;
+  color: #6f7d74;
+}
+
+.lineup-meta .right {
+  text-align: right;
+}
+
+.lineup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+}
+
+.lineup-team {
+  margin-bottom: 12rpx;
+  font-size: 25rpx;
+  font-weight: 900;
+  color: #143a22;
+}
+
+.lineup-side.right .lineup-team {
+  text-align: right;
+}
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  min-height: 40rpx;
+  font-size: 23rpx;
+  color: #24382b;
+}
+
+.lineup-side.right .player-row {
+  justify-content: flex-end;
+}
+
+.player-number {
+  min-width: 34rpx;
+  color: #8a958e;
+  font-size: 21rpx;
+}
+
+.player-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
