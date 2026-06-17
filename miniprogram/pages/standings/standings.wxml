@@ -1,8 +1,8 @@
 <view class="page">
   <view class="hero small-hero">
-    <view class="eyebrow">Standings</view>
-    <view class="hero-title">小组积分</view>
-    <view class="hero-subtitle">12 个小组排名与出线形势</view>
+    <view class="eyebrow">Group Stage</view>
+    <view class="hero-title">小组赛</view>
+    <view class="hero-subtitle">积分排名与本组赛程</view>
   </view>
 
   <scroll-view class="group-scroll" scroll-x>
@@ -33,10 +33,10 @@
     </view>
     <view wx:for="{{standings}}" wx:key="key" class="table-row">
       <view class="rank {{item.rankClass}}">{{item.position}}</view>
-      <view class="team-cell tappable" data-team-id="{{item.team.apiTeamId}}" catchtap="onTeamTap">
-        <image wx:if="{{item.team.crest}}" class="team-crest" src="{{item.team.crest}}" mode="aspectFit"></image>
+      <view class="team-cell {{item.team.apiTeamId ? 'tappable' : ''}}" data-team-id="{{item.team.apiTeamId}}" catchtap="onTeamTap">
+        <image wx:if="{{item.team.crest}}" class="team-crest" src="{{item.team.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
         <text>{{item.teamText}}</text>
-        <text class="team-arrow">›</text>
+        <text wx:if="{{item.team.apiTeamId}}" class="team-arrow">›</text>
       </view>
       <view>{{item.playedGames}}</view>
       <view>{{item.won}}</view>
@@ -44,6 +44,48 @@
       <view>{{item.lost}}</view>
       <view>{{item.goalDifference}}</view>
       <view class="points">{{item.points}}</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <view class="section-title">本组赛程</view>
+      <view class="section-meta">{{activeGroupText}}</view>
+    </view>
+    <view wx:if="{{matchLoading}}" class="card empty">加载本组赛程中...</view>
+    <view wx:elif="{{!groupMatches.length}}" class="card empty">暂无本组赛程</view>
+    <view
+      wx:for="{{groupMatches}}"
+      wx:key="apiMatchId"
+      class="match-card card {{item.canViewDetail ? 'tappable' : ''}}"
+      data-match-id="{{item.apiMatchId}}"
+      data-can-view-detail="{{item.canViewDetail}}"
+      bindtap="onMatchTap"
+    >
+      <view class="match-meta">
+        <text class="meta-time">{{item.beijingTimeText}}</text>
+        <view class="meta-actions">
+          <text class="status-pill">{{item.displayStatus}}</text>
+          <text wx:if="{{item.canViewDetail}}" class="detail-chip">详情 ›</text>
+        </view>
+      </view>
+      <view class="match-row">
+        <view class="team {{item.homeTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.homeTeam.apiTeamId}}" catchtap="onTeamTap">
+          <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
+          <text>{{item.homeName}}</text>
+        </view>
+        <view
+          wx:if="{{item.canSubscribe || item.subscribed}}"
+          class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
+          data-match-id="{{item.apiMatchId}}"
+          catchtap="onSubscribeTap"
+        >{{item.subscriptionText}}</view>
+        <view wx:else class="score">{{item.scoreText}}</view>
+        <view class="team right {{item.awayTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.awayTeam.apiTeamId}}" catchtap="onTeamTap">
+          <text>{{item.awayName}}</text>
+          <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
+        </view>
+      </view>
     </view>
   </view>
 </view>

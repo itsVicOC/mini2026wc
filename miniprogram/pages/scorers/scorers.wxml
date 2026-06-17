@@ -13,8 +13,8 @@
       <view class="rank {{item.rankClass}}">{{item.rank}}</view>
       <view class="player">
         <view class="player-name">{{item.player.name}}</view>
-        <view class="player-team muted">
-          <image wx:if="{{item.team.crest}}" class="team-flag" src="{{item.team.crest}}" mode="aspectFit"></image>
+        <view class="player-team muted {{item.team.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.team.apiTeamId}}" catchtap="onTeamTap">
+          <image wx:if="{{item.team.crest}}" class="team-flag" src="{{item.team.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
           <text>{{item.teamText}}</text>
         </view>
       </view>

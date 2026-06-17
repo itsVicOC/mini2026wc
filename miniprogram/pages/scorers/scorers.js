@@ -1,5 +1,5 @@
 const api = require('../../services/api');
-const { teamName } = require('../../utils/format');
+const { openTeamDetail, teamName } = require('../../utils/format');
 
 Page({
   data: {
@@ -51,5 +51,9 @@ Page({
         error: error.message || '射手榜加载失败'
       });
     }
+  },
+
+  onTeamTap(event) {
+    openTeamDetail(event.currentTarget.dataset.teamId);
   }
 });

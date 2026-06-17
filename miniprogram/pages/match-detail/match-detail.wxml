@@ -9,13 +9,13 @@
         <text wx:if="{{match.matchMinuteText}}" class="minute-pill">{{match.matchMinuteText}}</text>
       </view>
       <view class="score-main">
-        <view class="score-team">
-          <image wx:if="{{match.homeTeam.crest}}" class="detail-crest" src="{{match.homeTeam.crest}}" mode="aspectFit"></image>
+        <view class="score-team {{match.homeTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{match.homeTeam.apiTeamId}}" catchtap="onTeamTap">
+          <image wx:if="{{match.homeTeam.crest}}" class="detail-crest" src="{{match.homeTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
           <text>{{match.homeName}}</text>
         </view>
         <view class="score-number">{{match.scoreText}}</view>
-        <view class="score-team right">
-          <image wx:if="{{match.awayTeam.crest}}" class="detail-crest" src="{{match.awayTeam.crest}}" mode="aspectFit"></image>
+        <view class="score-team right {{match.awayTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{match.awayTeam.apiTeamId}}" catchtap="onTeamTap">
+          <image wx:if="{{match.awayTeam.crest}}" class="detail-crest" src="{{match.awayTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
           <text>{{match.awayName}}</text>
         </view>
       </view>
@@ -49,7 +49,17 @@
         <view class="{{item.className}}">{{item.typeText}}</view>
         <view class="event-content">
           <view class="event-title">{{item.title}}</view>
-          <view class="event-desc">{{item.teamText}} {{item.desc}}</view>
+          <view class="event-desc">
+            <text
+              wx:if="{{item.teamApiId}}"
+              class="team-link inline-team-link"
+              data-team-id="{{item.teamApiId}}"
+              catchtap="onTeamTap"
+            >{{item.teamText}}</text>
+            <text wx:else>{{item.teamText}}</text>
+            <text wx:if="{{item.teamText && item.desc}}"> </text>
+            <text>{{item.desc}}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -80,14 +90,14 @@
       </view>
       <view class="lineup-grid">
         <view class="lineup-side">
-          <view class="lineup-team">{{match.homeName}}</view>
+          <view class="lineup-team {{match.homeTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{match.homeTeam.apiTeamId}}" catchtap="onTeamTap">{{match.homeName}}</view>
           <view wx:for="{{match.homeLineupRows}}" wx:key="name" class="player-row">
             <text class="player-number">{{item.number}}</text>
             <text class="player-name">{{item.name}}</text>
           </view>
         </view>
         <view class="lineup-side right">
-          <view class="lineup-team">{{match.awayName}}</view>
+          <view class="lineup-team {{match.awayTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{match.awayTeam.apiTeamId}}" catchtap="onTeamTap">{{match.awayName}}</view>
           <view wx:for="{{match.awayLineupRows}}" wx:key="name" class="player-row">
             <text class="player-name">{{item.name}}</text>
             <text class="player-number">{{item.number}}</text>

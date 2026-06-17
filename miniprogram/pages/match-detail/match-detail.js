@@ -1,5 +1,5 @@
 const api = require('../../services/api');
-const { groupLabel, scoreText, stageLabel, teamName } = require('../../utils/format');
+const { groupLabel, openTeamDetail, scoreText, stageLabel, teamName } = require('../../utils/format');
 
 Page({
   data: {
@@ -57,6 +57,10 @@ Page({
         error: error.message || '比赛详情加载失败'
       });
     }
+  },
+
+  onTeamTap(event) {
+    openTeamDetail(event.currentTarget.dataset.teamId);
   }
 });
 
@@ -124,6 +128,7 @@ function buildEventRows(events = {}) {
       typeText: '进球',
       className: 'event-type goal',
       teamText: eventTeamName(event && event.team),
+      teamApiId: objectApiTeamId(event && event.team),
       title: objectName(event && event.scorer) || '进球',
       desc: compactText([
         event && event.assist ? `助攻 ${objectName(event.assist)}` : '',
@@ -139,6 +144,7 @@ function buildEventRows(events = {}) {
       typeText: cardText(event && event.card),
       className: 'event-type card',
       teamText: eventTeamName(event && event.team),
+      teamApiId: objectApiTeamId(event && event.team),
       title: objectName(event && event.player) || '球员',
       desc: event && event.card ? String(event.card) : ''
     });
@@ -151,6 +157,7 @@ function buildEventRows(events = {}) {
       typeText: '换人',
       className: 'event-type sub',
       teamText: eventTeamName(event && event.team),
+      teamApiId: objectApiTeamId(event && event.team),
       title: objectName(event && event.playerIn) || '替补登场',
       desc: event && event.playerOut ? `换下 ${objectName(event.playerOut)}` : ''
     });
@@ -163,6 +170,7 @@ function buildEventRows(events = {}) {
       typeText: '点球',
       className: 'event-type penalty',
       teamText: eventTeamName(event && event.team),
+      teamApiId: objectApiTeamId(event && event.team),
       title: objectName(event && event.player) || '点球',
       desc: event && event.scored === false ? '未罚进' : ''
     });
@@ -275,6 +283,13 @@ function objectName(value) {
 
 function eventTeamName(team) {
   return team ? teamName(team) : '';
+}
+
+function objectApiTeamId(value) {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+  return value.apiTeamId || value.id || null;
 }
 
 function cardText(card) {

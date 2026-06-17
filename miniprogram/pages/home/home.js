@@ -1,5 +1,5 @@
 const api = require('../../services/api');
-const { canViewMatchDetail, scoreText, teamName } = require('../../utils/format');
+const { canViewMatchDetail, openTeamDetail, scoreText, teamName } = require('../../utils/format');
 const {
   canSubscribeMatch,
   decorateSubscriptionState,
@@ -188,6 +188,10 @@ Page({
     wx.navigateTo({
       url: `/pages/match-detail/match-detail?apiMatchId=${apiMatchId}`
     });
+  },
+
+  onTeamTap(event) {
+    openTeamDetail(event.currentTarget.dataset.teamId);
   },
 
   async loadSubscriptionStatus() {

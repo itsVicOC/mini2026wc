@@ -65,8 +65,8 @@
         </view>
       </view>
       <view class="match-row">
-        <view class="team">
-          <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit"></image>
+        <view class="team {{item.homeTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.homeTeam.apiTeamId}}" catchtap="onTeamTap">
+          <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
           <text>{{item.homeName}}</text>
         </view>
         <view
@@ -76,9 +76,9 @@
           catchtap="onSubscribeTap"
         >{{item.subscriptionText}}</view>
         <view wx:else class="score">{{item.scoreText}}</view>
-        <view class="team right">
+        <view class="team right {{item.awayTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.awayTeam.apiTeamId}}" catchtap="onTeamTap">
           <text>{{item.awayName}}</text>
-          <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit"></image>
+          <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
         </view>
       </view>
     </view>
@@ -109,8 +109,8 @@
           </view>
         </view>
         <view class="match-row">
-          <view class="team">
-            <image wx:if="{{match.homeTeam.crest}}" class="team-crest" src="{{match.homeTeam.crest}}" mode="aspectFit"></image>
+          <view class="team {{match.homeTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{match.homeTeam.apiTeamId}}" catchtap="onTeamTap">
+            <image wx:if="{{match.homeTeam.crest}}" class="team-crest" src="{{match.homeTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
             <text>{{match.homeName}}</text>
           </view>
           <view
@@ -120,9 +120,9 @@
             catchtap="onSubscribeTap"
           >{{match.subscriptionText}}</view>
           <view wx:else class="score">{{match.scoreText}}</view>
-          <view class="team right">
+          <view class="team right {{match.awayTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{match.awayTeam.apiTeamId}}" catchtap="onTeamTap">
             <text>{{match.awayName}}</text>
-            <image wx:if="{{match.awayTeam.crest}}" class="team-crest" src="{{match.awayTeam.crest}}" mode="aspectFit"></image>
+            <image wx:if="{{match.awayTeam.crest}}" class="team-crest" src="{{match.awayTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
           </view>
         </view>
       </view>

@@ -1,5 +1,5 @@
 const api = require('../../services/api');
-const { groupLabel, stageLabel, teamName } = require('../../utils/format');
+const { groupLabel, openTeamDetail, stageLabel, teamName } = require('../../utils/format');
 const {
   canSubscribeMatch,
   decorateSubscriptionState,
@@ -78,6 +78,10 @@ Page({
     wx.navigateTo({
       url: `/pages/match-detail/match-detail?apiMatchId=${apiMatchId}`
     });
+  },
+
+  onTeamTap(event) {
+    openTeamDetail(event.currentTarget.dataset.teamId);
   },
 
   async onSubscribeTap(event) {

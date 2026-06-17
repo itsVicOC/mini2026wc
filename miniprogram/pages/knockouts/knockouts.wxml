@@ -5,20 +5,49 @@
     <view class="hero-subtitle">按阶段查看晋级之路</view>
   </view>
 
+  <scroll-view class="filter-scroll" scroll-x>
+    <view class="filters">
+      <view
+        wx:for="{{stageFilters}}"
+        wx:key="value"
+        class="{{item.className}}"
+        data-value="{{item.value}}"
+        bindtap="onStageTap"
+      >{{item.label}}</view>
+    </view>
+  </scroll-view>
+
   <view wx:if="{{error}}" class="card empty">{{error}}</view>
   <view wx:elif="{{showEmpty}}" class="card empty">淘汰赛赛程暂未生成</view>
 
   <view wx:for="{{stages}}" wx:key="stage" class="stage">
     <view class="stage-title">{{item.title}}</view>
-    <view wx:for="{{item.matches}}" wx:for-item="match" wx:key="apiMatchId" class="match-card card">
+    <view
+      wx:for="{{item.matches}}"
+      wx:for-item="match"
+      wx:key="apiMatchId"
+      class="match-card card {{match.canViewDetail ? 'tappable' : ''}}"
+      data-match-id="{{match.apiMatchId}}"
+      data-can-view-detail="{{match.canViewDetail}}"
+      bindtap="onMatchTap"
+    >
       <view class="match-meta">
-        <text>{{match.beijingDate}} · {{match.beijingTimeText}}</text>
-        <text class="status-pill">{{match.displayStatus}}</text>
+        <text class="meta-time">{{match.beijingTimeText}}</text>
+        <view class="meta-actions">
+          <text class="status-pill">{{match.displayStatus}}</text>
+          <text wx:if="{{match.canViewDetail}}" class="detail-chip">详情 ›</text>
+        </view>
       </view>
       <view class="match-row">
-        <view class="team"><text>{{match.homeName}}</text></view>
-        <view class="score">{{match.scoreText}}</view>
-        <view class="team right"><text>{{match.awayName}}</text></view>
+        <view class="team {{match.homeTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{match.homeTeam.apiTeamId}}" catchtap="onTeamTap"><text>{{match.homeName}}</text></view>
+        <view
+          wx:if="{{match.showSubscribeButton}}"
+          class="subscribe-button {{match.subscribed ? 'subscribed' : ''}} {{match.subscriptionLoading ? 'loading' : ''}}"
+          data-match-id="{{match.apiMatchId}}"
+          catchtap="onSubscribeTap"
+        >{{match.subscriptionText}}</view>
+        <view wx:else class="score">{{match.scoreText}}</view>
+        <view class="team right {{match.awayTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{match.awayTeam.apiTeamId}}" catchtap="onTeamTap"><text>{{match.awayName}}</text></view>
       </view>
       <view wx:if="{{match.showPenalty}}" class="penalty muted">
         点球 {{match.score.penaltyHome}} : {{match.score.penaltyAway}}

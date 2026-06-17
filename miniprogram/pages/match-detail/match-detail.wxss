@@ -63,6 +63,18 @@
   white-space: nowrap;
 }
 
+.team-link {
+  color: #d7b15c;
+}
+
+.team-link:active {
+  opacity: 0.72;
+}
+
+.inline-team-link {
+  font-weight: 700;
+}
+
 .detail-crest {
   width: 76rpx;
   height: 76rpx;
@@ -181,7 +193,14 @@
   color: #bd3c2f;
 }
 
+.event-content {
+  min-width: 0;
+}
+
 .event-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 26rpx;
   font-weight: 800;
   color: #15251a;
@@ -189,6 +208,9 @@
 
 .event-desc {
   margin-top: 4rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 22rpx;
   color: #7a867f;
 }

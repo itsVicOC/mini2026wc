@@ -4,7 +4,7 @@
 
   <block wx:elif="{{detail}}">
     <view class="team-hero">
-      <image wx:if="{{detail.team.crest}}" class="hero-crest" src="{{detail.team.crest}}" mode="aspectFit"></image>
+      <image wx:if="{{detail.team.crest}}" class="hero-crest" src="{{detail.team.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
       <view class="team-hero-main">
         <view class="team-title">{{detail.teamText}}</view>
         <view class="team-subtitle">{{detail.groupText}} · {{detail.standingText}}</view>
@@ -47,8 +47,8 @@
         data-can-view-detail="{{item.canViewDetail}}"
         bindtap="onMatchTap"
       >
-        <view class="match-left">
-          <image wx:if="{{item.opponent.crest}}" class="opponent-crest" src="{{item.opponent.crest}}" mode="aspectFit"></image>
+        <view class="match-left {{item.opponent.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.opponent.apiTeamId}}" catchtap="onTeamTap">
+          <image wx:if="{{item.opponent.crest}}" class="opponent-crest" src="{{item.opponent.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
           <view class="match-main">
             <view class="opponent-name">{{item.opponentName}}</view>
             <view class="match-sub">{{item.beijingDate}} · {{item.stageText}} {{item.groupText}}</view>
@@ -75,8 +75,8 @@
         data-can-view-detail="{{item.canViewDetail}}"
         bindtap="onMatchTap"
       >
-        <view class="match-left">
-          <image wx:if="{{item.opponent.crest}}" class="opponent-crest" src="{{item.opponent.crest}}" mode="aspectFit"></image>
+        <view class="match-left {{item.opponent.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.opponent.apiTeamId}}" catchtap="onTeamTap">
+          <image wx:if="{{item.opponent.crest}}" class="opponent-crest" src="{{item.opponent.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
           <view class="match-main">
             <view class="opponent-name">{{item.opponentName}}</view>
             <view class="match-sub">{{item.beijingDate}} · {{item.beijingTimeText}}</view>

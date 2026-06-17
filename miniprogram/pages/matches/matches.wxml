@@ -29,29 +29,32 @@
     bindtap="onMatchTap"
   >
     <view class="match-meta">
-      <text class="meta-time">{{item.beijingDate}} · {{item.beijingTimeText}}</text>
+      <text class="meta-time">{{item.beijingTimeText}}</text>
       <view class="meta-actions">
         <text class="status-pill">{{item.displayStatus}}</text>
         <text wx:if="{{item.canViewDetail}}" class="detail-chip">详情 ›</text>
       </view>
     </view>
     <view class="match-row">
-      <view class="team">
-        <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit"></image>
+      <view class="team {{item.homeTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.homeTeam.apiTeamId}}" catchtap="onTeamTap">
+        <image wx:if="{{item.homeTeam.crest}}" class="team-crest" src="{{item.homeTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
         <text>{{item.homeName}}</text>
       </view>
       <view
-        wx:if="{{item.canSubscribe || item.subscribed}}"
+        wx:if="{{item.showSubscribeButton}}"
         class="subscribe-button {{item.subscribed ? 'subscribed' : ''}} {{item.subscriptionLoading ? 'loading' : ''}}"
         data-match-id="{{item.apiMatchId}}"
         catchtap="onSubscribeTap"
       >{{item.subscriptionText}}</view>
       <view wx:else class="score">{{item.scoreText}}</view>
-      <view class="team right">
+      <view class="team right {{item.awayTeam.apiTeamId ? 'team-link' : ''}}" data-team-id="{{item.awayTeam.apiTeamId}}" catchtap="onTeamTap">
         <text>{{item.awayName}}</text>
-        <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit"></image>
+        <image wx:if="{{item.awayTeam.crest}}" class="team-crest" src="{{item.awayTeam.crest}}" mode="aspectFit" lazy-load="{{true}}"></image>
       </view>
     </view>
     <view class="match-foot muted">{{item.stageText}} {{item.groupText}}</view>
   </view>
+
+  <view wx:if="{{matches.length && hasMoreMatches}}" class="list-more muted">继续下滑加载更多</view>
+  <view wx:elif="{{matches.length}}" class="list-more muted">已显示全部赛程</view>
 </view>

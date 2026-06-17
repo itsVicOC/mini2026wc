@@ -104,3 +104,123 @@
   color: #0b7a3b;
   font-weight: 900;
 }
+
+.match-card {
+  margin-bottom: 16rpx;
+  padding: 22rpx;
+}
+
+.match-card.tappable {
+  border-color: rgba(215, 177, 92, 0.45);
+  box-shadow: 0 10rpx 30rpx rgba(136, 99, 30, 0.12);
+}
+
+.match-card.tappable:active {
+  transform: scale(0.992);
+  opacity: 0.94;
+}
+
+.match-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14rpx;
+  margin-bottom: 18rpx;
+  font-size: 24rpx;
+  color: #68756e;
+}
+
+.meta-time {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.detail-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40rpx;
+  padding: 0 14rpx;
+  border-radius: 999rpx;
+  background: #fff3cf;
+  color: #8a6315;
+  font-size: 22rpx;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.match-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 132rpx minmax(0, 1fr);
+  align-items: center;
+  gap: 12rpx;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-width: 0;
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.team text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team.right {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.team-link {
+  color: #0b7a3b;
+}
+
+.team-link:active {
+  opacity: 0.72;
+}
+
+.subscribe-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 56rpx;
+  padding: 0 12rpx;
+  box-sizing: border-box;
+  border-radius: 8rpx;
+  background: #0b7a3b;
+  color: #fff;
+  font-size: 21rpx;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 8rpx 16rpx rgba(8, 98, 53, 0.18);
+}
+
+.subscribe-button:active {
+  opacity: 0.84;
+}
+
+.subscribe-button.subscribed {
+  background: #eaf5ee;
+  color: #0b7a3b;
+  box-shadow: none;
+}
+
+.subscribe-button.loading {
+  opacity: 0.74;
+}

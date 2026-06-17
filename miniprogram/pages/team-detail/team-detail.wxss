@@ -176,6 +176,14 @@
   min-width: 0;
 }
 
+.team-link .opponent-name {
+  color: #0b7a3b;
+}
+
+.team-link:active {
+  opacity: 0.72;
+}
+
 .opponent-crest {
   flex: 0 0 auto;
   width: 42rpx;

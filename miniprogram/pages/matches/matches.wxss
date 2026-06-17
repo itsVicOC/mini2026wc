@@ -106,8 +106,22 @@
   text-align: right;
 }
 
+.team-link {
+  color: #0b7a3b;
+}
+
+.team-link:active {
+  opacity: 0.72;
+}
+
 .match-foot {
   margin-top: 16rpx;
+  font-size: 23rpx;
+}
+
+.list-more {
+  padding: 12rpx 0 28rpx;
+  text-align: center;
   font-size: 23rpx;
 }
 

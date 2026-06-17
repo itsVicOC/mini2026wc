@@ -184,6 +184,14 @@
   text-align: right;
 }
 
+.team-link {
+  color: #0b7a3b;
+}
+
+.team-link:active {
+  opacity: 0.72;
+}
+
 .date-group {
   margin-bottom: 24rpx;
 }
