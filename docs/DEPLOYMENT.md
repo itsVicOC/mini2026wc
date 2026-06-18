@@ -48,7 +48,7 @@
 | --- | --- | --- |
 | `backend/.env` | 本地开发后端时 | 数据库账号、football-data.org Token、同步开关。 |
 | 1Panel 环境变量面板 | 服务器部署后端时 | 和 `.env` 一样，但生产环境建议在 1Panel 页面里填。 |
-| [miniprogram/config/index.js](miniprogram/config/index.js) | 小程序连接后端时 | 把 `baseUrl` 改成你的后端域名；如启用开赛提醒，填写 `subscriptionTemplateId`。 |
+| `miniprogram/config/local.js` | 小程序连接后端时 | 从 `miniprogram/config/local.example.js` 复制得到，填写你的后端域名；如启用开赛提醒，填写 `subscriptionTemplateId`。 |
 | 微信公众平台 request 合法域名 | 小程序上线前 | 添加后端 HTTPS 域名。 |
 | 微信公众平台订阅消息 | 启用开赛提醒时 | 申请一次性订阅消息模板，复制模板 ID 和字段 key。 |
 
@@ -334,7 +334,7 @@ CACHE_TTL_SECONDS=30
 WECHAT_SUBSCRIBE_TEMPLATE_ID=你的模板 ID
 
 小程序配置：
-miniprogram/config/index.js 里的 subscriptionTemplateId
+miniprogram/config/local.js 里的 subscriptionTemplateId
 ```
 
 #### 第三步：确认模板字段 key
@@ -606,9 +606,15 @@ https://api.example.com/api/home
 
 ### 11.1 修改后端地址
 
+复制本地配置文件：
+
+```bash
+cp miniprogram/config/local.example.js miniprogram/config/local.js
+```
+
 打开：
 
-[miniprogram/config/index.js](miniprogram/config/index.js)
+`miniprogram/config/local.js`
 
 把：
 
@@ -634,7 +640,7 @@ baseUrl: 'https://api.example.com'
 baseUrl: 'https://api.example.com/'
 ```
 
-如果启用了开赛提醒，还需要把订阅消息模板 ID 填到同一个配置文件：
+如果启用了开赛提醒，还需要把订阅消息模板 ID 填到同一个本地配置文件：
 
 ```js
 subscriptionTemplateId: '你的订阅消息模板 ID'
@@ -737,7 +743,7 @@ http://localhost:3000/health
 
 ### 12.4 小程序连接本地后端
 
-本地开发时 [miniprogram/config/index.js](miniprogram/config/index.js) 可以保持：
+本地开发时 `miniprogram/config/local.js` 可以保持：
 
 ```js
 baseUrl: 'http://localhost:3000'

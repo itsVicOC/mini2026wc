@@ -11,4 +11,5 @@ dist/
 npm-debug.log*
 *.log
 miniprogram/miniprogram_npm/
+miniprogram/config/local.js
 miniprogram/project.private.config.json

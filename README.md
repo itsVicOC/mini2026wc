@@ -27,7 +27,7 @@
 6. 访问 `/health/db` 确认数据库连接正常。
 7. 手动触发一次 `/api/admin/sync`。
 8. 如需开赛提醒，在微信公众平台申请订阅消息模板并配置模板 ID。
-9. 修改小程序 `baseUrl` 和订阅消息模板 ID。
+9. 复制小程序本地配置文件，并填写 `baseUrl` 和订阅消息模板 ID。
 10. 在微信公众平台配置 request 合法域名。
 
 ## 后端开发
@@ -65,7 +65,7 @@ curl -X POST http://localhost:3000/api/admin/sync \
 
 1. 用微信开发者工具导入 `miniprogram/`。
 2. AppID 使用 `YOUR_MINIPROGRAM_APPID`。
-3. 修改 [miniprogram/config/index.js](miniprogram/config/index.js) 中的 `baseUrl`。
+3. 复制 `miniprogram/config/local.example.js` 为 `miniprogram/config/local.js`，填写后端 `baseUrl`。
 4. 如需开赛提醒，配置同一个订阅消息模板 ID 到小程序和后端。
 5. 生产环境需要在微信公众平台配置 request 合法域名。
 
