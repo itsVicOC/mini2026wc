@@ -39,23 +39,56 @@ export async function upsertMatches(matches: MatchRecord[]) {
           group_name = VALUES(group_name),
           \`utc_date\` = VALUES(\`utc_date\`),
           beijing_date = VALUES(beijing_date),
-          \`status\` = VALUES(\`status\`),
-          display_status = VALUES(display_status),
+          \`status\` = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN \`status\`
+            ELSE VALUES(\`status\`)
+          END,
+          display_status = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN display_status
+            ELSE VALUES(display_status)
+          END,
           home_team_api_id = VALUES(home_team_api_id),
           home_team_name = VALUES(home_team_name),
           home_team_crest = VALUES(home_team_crest),
           away_team_api_id = VALUES(away_team_api_id),
           away_team_name = VALUES(away_team_name),
           away_team_crest = VALUES(away_team_crest),
-          home_score = VALUES(home_score),
-          away_score = VALUES(away_score),
-          half_time_home_score = VALUES(half_time_home_score),
-          half_time_away_score = VALUES(half_time_away_score),
-          extra_time_home_score = VALUES(extra_time_home_score),
-          extra_time_away_score = VALUES(extra_time_away_score),
-          penalty_home_score = VALUES(penalty_home_score),
-          penalty_away_score = VALUES(penalty_away_score),
-          winner = VALUES(winner),
+          home_score = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN home_score
+            ELSE VALUES(home_score)
+          END,
+          away_score = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN away_score
+            ELSE VALUES(away_score)
+          END,
+          half_time_home_score = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN half_time_home_score
+            ELSE VALUES(half_time_home_score)
+          END,
+          half_time_away_score = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN half_time_away_score
+            ELSE VALUES(half_time_away_score)
+          END,
+          extra_time_home_score = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN extra_time_home_score
+            ELSE VALUES(extra_time_home_score)
+          END,
+          extra_time_away_score = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN extra_time_away_score
+            ELSE VALUES(extra_time_away_score)
+          END,
+          penalty_home_score = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN penalty_home_score
+            ELSE VALUES(penalty_home_score)
+          END,
+          penalty_away_score = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN penalty_away_score
+            ELSE VALUES(penalty_away_score)
+          END,
+          winner = CASE
+            WHEN \`status\` = 'FINISHED' AND VALUES(\`status\`) <> 'FINISHED' THEN winner
+            ELSE VALUES(winner)
+          END,
           venue = VALUES(venue),
           last_updated = VALUES(last_updated)
       `,

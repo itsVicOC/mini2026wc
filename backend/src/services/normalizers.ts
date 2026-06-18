@@ -6,8 +6,8 @@ import type {
   FootballDataStanding,
   FootballDataTeam
 } from './footballDataClient.js';
-import { toBeijingDate, toMysqlDateTime } from '../utils/time.js';
-import { toDisplayStatus } from '../utils/status.js';
+import { parseUtcDateTime, toBeijingDate, toMysqlDateTime } from '../utils/time.js';
+import { isLive, toDisplayStatus } from '../utils/status.js';
 
 export type TeamRecord = {
   api_team_id: number;
@@ -107,6 +107,7 @@ export type ScorerRecord = {
 };
 
 export const UNKNOWN_GROUP_NAME = 'GROUP_UNKNOWN';
+const LIVE_STATUS_STALE_MS = 5 * 60 * 60 * 1000;
 
 export function normalizeTeam(team: FootballDataTeam, groupName: string | null = null): TeamRecord | null {
   if (!team.id || !team.name) {
@@ -127,6 +128,7 @@ export function normalizeMatch(match: FootballDataMatch): MatchRecord {
   if (!utcDate) {
     throw new Error(`Invalid match utcDate for match ${match.id}`);
   }
+  const status = normalizeMatchStatus(match);
 
   return {
     api_match_id: match.id,
@@ -137,8 +139,8 @@ export function normalizeMatch(match: FootballDataMatch): MatchRecord {
     group_name: normalizeGroupName(match.group),
     utc_date: utcDate,
     beijing_date: toBeijingDate(match.utcDate),
-    status: match.status,
-    display_status: toDisplayStatus(match.status),
+    status,
+    display_status: toDisplayStatus(status),
     home_team_api_id: match.homeTeam?.id ?? null,
     home_team_name: match.homeTeam?.name ?? null,
     home_team_crest: match.homeTeam?.crest ?? null,
@@ -157,6 +159,27 @@ export function normalizeMatch(match: FootballDataMatch): MatchRecord {
     venue: match.venue ?? null,
     last_updated: toMysqlDateTime(match.lastUpdated)
   };
+}
+
+function normalizeMatchStatus(match: FootballDataMatch) {
+  const status = match.status;
+  if (!isLive(status)) {
+    return status;
+  }
+
+  const kickoffAt = parseUtcDateTime(match.utcDate);
+  if (Number.isNaN(kickoffAt.getTime())) {
+    return status;
+  }
+
+  const hasScore =
+    match.score?.fullTime?.home !== null &&
+    match.score?.fullTime?.home !== undefined &&
+    match.score?.fullTime?.away !== null &&
+    match.score?.fullTime?.away !== undefined;
+  const elapsedMs = Date.now() - kickoffAt.getTime();
+
+  return hasScore && elapsedMs >= LIVE_STATUS_STALE_MS ? 'FINISHED' : status;
 }
 
 export function normalizeMatchDetail(
